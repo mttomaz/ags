@@ -1,21 +1,22 @@
-import { App, Astal, Gdk } from "astal/gtk3"
-import { Variable } from "astal"
+import app from "ags/gtk4/app"
+import Gdk from "gi://Gdk?version=4.0"
+import { Astal } from "ags/gtk4"
+import { Accessor } from "ags"
 
-export default function Crosshair(monitor: Gdk.Monitor, visible: Variable<boolean>) {
+export default function Crosshair(monitor: Gdk.Monitor, visible: Accessor<boolean>) {
   return <window
-    className="Crosshair"
+    class="Crosshair"
     namespace="crosshair"
     gdkmonitor={monitor}
-    visible={visible()}
+    visible={visible}
     layer={Astal.Layer.OVERLAY}
-    application={App}
+    application={app}
     exclusivity={Astal.Exclusivity.IGNORE}
     keymode={Astal.Keymode.NONE}
     canFocus={false}
-    acceptFocus={false}
   >
     <box
-      className="Dot"
+      class="Dot"
     />
   </window>
 }

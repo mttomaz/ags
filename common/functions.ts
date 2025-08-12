@@ -1,7 +1,9 @@
-import { Astal } from "astal/gtk3"
+import { Gdk, Gtk } from "ags/gtk4"
 
-export const isIcon = (icon: string) =>
-  !!Astal.Icon.lookup_icon(icon)
+export function isIcon(icon?: string | null) {
+  const iconTheme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default()!)
+  return icon && iconTheme.has_icon(icon)
+}
 
 export function getWeatherEmoji(desc: string): string {
   desc = desc.toLowerCase()
@@ -32,7 +34,7 @@ export function getWeatherImage(desc: string): string {
   return "other.png"
 }
 
-export function getWifiIcon(icon) {
+export function getWifiIcon(icon: string): string {
   if (icon.includes("offline")) return "󰤮"
   if (icon.includes("no-route")) return "󰤭"
   if (icon.includes("connected")) return "󰤫"

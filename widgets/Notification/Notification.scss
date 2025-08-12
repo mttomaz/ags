@@ -1,27 +1,22 @@
 @use "../../theme" as *;
 
-eventbox.Notification {
-  font-family: $font2;
+// https://gitlab.gnome.org/GNOME/gtk/-/blob/gtk-3-24/gtk/theme/Adwaita/_colors-public.scss
+$fg-color: #{"@theme_fg_color"};
+$bg-color: #{"@theme_bg_color"};
+$error: red;
 
-  &:first-child > box {
-    margin-top: 1rem;
-  }
+window.NotificationPopups {
+  all: unset;
+}
 
-  &:last-child > box {
-    margin-bottom: 1rem;
-  }
+.Notification {
+  border-radius: 13px;
+  background-color: $bg-color;
+  margin: 0.5rem 1rem 0.5rem 1rem;
+  box-shadow: 2px 3px 8px 0 gtkalpha(black, 0.4);
+  border: 1pt solid gtkalpha($fg-color, 0.03);
 
-  // eventboxes can not take margins so we style its inner box instead
-  > box {
-    min-width: 300px;
-    border-radius: 10px;
-    background-color: $bg1;
-    margin: 0.5rem 1rem 0.5rem 1rem;
-    box-shadow: 0px 0px 8px 0 gtkalpha(black, 0.4);
-    border: 0pt solid gtkalpha($fg1, 0.03);
-  }
-
-  &.critical > box {
+  &.critical {
     border: 1pt solid gtkalpha($error, 0.4);
 
     .header {
@@ -37,6 +32,7 @@ eventbox.Notification {
 
   .header {
     padding: 0.5rem;
+    color: gtkalpha($fg-color, 0.5);
 
     .app-icon {
       margin: 0 0.4rem;
@@ -45,7 +41,6 @@ eventbox.Notification {
     .app-name {
       margin-right: 0.3rem;
       font-weight: bold;
-      color: gtkalpha($fg1, 0.8);
 
       &:first-child {
         margin-left: 0.4rem;
@@ -54,24 +49,18 @@ eventbox.Notification {
 
     .time {
       margin: 0 0.4rem;
-      color: gtkalpha($fg1, 0.5);
     }
 
     button {
       padding: 0.2rem;
       min-width: 0;
       min-height: 0;
-      transition-duration: 150ms;
-      &:hover {
-        color: $bg1;
-        background-color: $error;
-      }
     }
   }
 
   separator {
     margin: 0 0.4rem;
-    background-color: gtkalpha($fg1, 0.1);
+    background-color: gtkalpha($fg-color, 0.1);
   }
 
   .content {
@@ -80,19 +69,19 @@ eventbox.Notification {
 
     .summary {
       font-size: 1.2em;
-      color: $fg1;
+      color: $fg-color;
     }
 
     .body {
-      color: gtkalpha($fg1, 1);
+      color: gtkalpha($fg-color, 0.8);
     }
 
     .image {
-      border: 1px solid gtkalpha($fg1, 0.02);
+      border: 1px solid gtkalpha($fg-color, 0.02);
       margin-right: 0.5rem;
-      border-radius: 4px;
-      min-width: 80px;
-      min-height: 80px;
+      border-radius: 9px;
+      min-width: 100px;
+      min-height: 100px;
       background-size: cover;
       background-position: center;
     }
