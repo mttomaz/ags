@@ -4,9 +4,9 @@ import Gdk from "gi://Gdk?version=4.0"
 import app from "ags/gtk4/app"
 import AstalBattery from "gi://AstalBattery"
 import AstalBluetooth from "gi://AstalBluetooth"
-// import AstalHyprland from "gi://AstalHyprland"
+import AstalHyprland from "gi://AstalHyprland"
 import AstalMpris from "gi://AstalMpris"
-// import AstalNetwork from "gi://AstalNetwork"
+import AstalNetwork from "gi://AstalNetwork"
 import AstalTray from "gi://AstalTray"
 // import Time from "@widgets/Time/Time"
 // import { getWeatherEmoji } from "@common/functions"
@@ -38,22 +38,34 @@ function TrayModule() {
   )
 }
 
-// function NetworkModule() {
-//   const network = Network.get_default()
-//   const networkTypes = { "1": "wired", "2": "wifi" }
-//
-//   return <With value={createBinding(network, "primary")}>
-//     {(p: number) => {
-//       const dev = network[networkTypes[p]]
-//       if (dev) {
-//         return <icon
-//           class="Network"
-//           icon={createBinding(dev, "iconName")} />
-//       }
-//       return <box />
-//     }}
-//   </With>
-// }
+function NetworkModule() {
+  const network = AstalNetwork.get_default()
+  const wifi = createBinding(network, "wifi")
+  const wired = createBinding(network, "wired")
+
+  return (
+    <box>
+      <box visible={wifi(Boolean)}>
+        <With value={wifi}>
+          {(wifi) =>
+            wifi && (
+              <image iconName={createBinding(wifi, "iconName")} />
+            )
+          }
+        </With>
+      </box>
+      <box visible={wired(Boolean)}>
+        <With value={wired}>
+          {(wired) =>
+            wired && (
+              <image iconName={createBinding(wired, "iconName")} />
+            )
+          }
+        </With>
+      </box>
+    </box>
+  )
+}
 
 function BluetoothModule() {
   const bluetooth = AstalBluetooth.get_default()
@@ -100,26 +112,27 @@ function MediaModule() {
   </With>
 }
 
-// function Workspaces() {
-//   const hypr = Hyprland.get_default()
-//
-//   return <box class="Workspaces">
-//     <With value={createBinding(hypr, "workspaces")}>
-//       {(wss) => wss
-//       .filter(ws => !(ws.id >= -99 && ws.id <= -2)) // filter out special workspaces
-//       .sort((a, b) => a.id - b.id)
-//       .map(ws => (
-//         <button
-//           class={createBinding(hypr, "focusedWorkspace").as(fw =>
-//             ws === fw ? "focused" : "")}
-//           onClicked={() => ws.focus()}>
-//           {ws.id}
-//         </button>
-//       ))
-//       }
-//     </With>
-//   </box>
-// }
+function Workspaces() {
+  const hypr = AstalHyprland.get_default()
+  const workspaces = createBinding(hypr, "workspaces")
+
+  const sorted = (arr: Array<AstalHyprland.Workspace>) => {
+    return arr.filter(ws => !(ws.id >= -99 && ws.id <= -2)).sort((a, b) => a.id - b.id)
+  }
+
+  return <box class="Workspaces">
+    <For each={workspaces(sorted)}>
+      {(ws) => (
+        <button
+          class={createBinding(hypr, "focusedWorkspace").as(fw => ws === fw ? "focused" : "")}
+          onClicked={() => ws.focus()}
+        >
+          {ws.id}
+        </button>
+      )}
+    </For>
+  </box>
+}
 
 // function Weather() {
 //   const visible = Variable<boolean>(false)
@@ -139,13 +152,13 @@ function MediaModule() {
 //   </revealer>
 // }
 
-// function NotificationBell() {
-//   return <revealer
-//     transitionType={Gtk.RevealerTransitionType.SLIDE_LEFT}
-//     revealChild={notificationsLength.as(l => l > 1)}>
-//     <label class="NotificationBell" label="󱅫" />
-//   </revealer>
-// }
+function NotificationBell() {
+  return <revealer
+    transitionType={Gtk.RevealerTransitionType.SLIDE_LEFT}
+    revealChild={notificationsLength.as(l => l > 1)}>
+    <label class="NotificationBell" label="󱅫" />
+  </revealer>
+}
 
 function Memory() {
   return <With value={memoryUsage}>
@@ -193,7 +206,7 @@ export default function Bar(monitor: Gdk.Monitor, visible: Accessor<boolean>) {
               {/* <Weather /> */}
             </box>
           </button>
-          {/* <Workspaces /> */}
+          <Workspaces />
         </box>
         <box
           hexpand
@@ -213,9 +226,9 @@ export default function Bar(monitor: Gdk.Monitor, visible: Accessor<boolean>) {
           >
             <box>
               <BatteryModule />
-              {/* <NetworkModule /> */}
+              <NetworkModule />
               <BluetoothModule />
-              {/* <NotificationBell /> */}
+              <NotificationBell />
               <Memory />
             </box>
           </button>

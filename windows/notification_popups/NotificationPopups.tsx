@@ -4,6 +4,7 @@ import AstalNotifd from "gi://AstalNotifd"
 import Notification from "@widgets/Notification/Notification"
 import { For, createState, onCleanup } from "ags"
 import Gdk from "gi://Gdk?version=4.0"
+import { setNotificationsLength } from "@common/vars"
 
 export default function NotificationPopups(monitor: Gdk.Monitor) {
 
@@ -38,7 +39,10 @@ export default function NotificationPopups(monitor: Gdk.Monitor) {
       class="NotificationPopups"
       gdkmonitor={monitor}
       application={app}
-      visible={notifications((ns) => ns.length > 0)}
+      visible={notifications((ns) => {
+        setNotificationsLength(ns.length)
+        return ns.length > 0 })
+      }
       anchor={Astal.WindowAnchor.TOP | Astal.WindowAnchor.RIGHT}
     >
       <box orientation={Gtk.Orientation.VERTICAL}>
