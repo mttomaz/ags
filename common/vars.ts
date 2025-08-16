@@ -39,19 +39,24 @@ export const memoryUsage = createPoll("", 5 * 1000, async () => {
   return output
 })
 
-// type WeatherData = {
-//   timestamp: string
-//   weather: any
-// };
-//
-// export const weatherReport = createPoll({}, 20 * 60 * 1000, async () => {
-//   try {
-//     const result = await execAsync(`curl -s "wttr.in/Curitiba?format=j1"`)
-//     const weather = JSON.parse(result)
-//     const timestamp = currentTime.get()
-//     return { timestamp, weather }
-//   } catch (err) {
-//     console.error("Error fetching weather:", err)
-//     return null
-//   }
-// })
+type WeatherData = {
+  timestamp: string
+  weather: any
+};
+
+var startReport: WeatherData = {
+  timestamp: "",
+  weather: null
+}
+
+export const weatherReport = createPoll(startReport, 20 * 60 * 1000, async () => {
+  try {
+    const result = await execAsync(`curl -s "wttr.in/Curitiba?format=j1"`)
+    const weather = JSON.parse(result)
+    const timestamp = currentTime.get()
+    return { timestamp, weather }
+  } catch (err) {
+    console.error("Error fetching weather:", err)
+    return null
+  }
+})

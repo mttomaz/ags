@@ -9,9 +9,9 @@ import AstalMpris from "gi://AstalMpris"
 import AstalNetwork from "gi://AstalNetwork"
 import AstalTray from "gi://AstalTray"
 // import Time from "@widgets/Time/Time"
-// import { getWeatherEmoji } from "@common/functions"
-import { currentTime, memoryUsage, notificationsLength, setShowLeftSidebar, setShowRightSidebar, showLeftSidebar, showRightSidebar } from "@common/vars"
-import { Accessor, createBinding, For, With } from "ags"
+import { getWeatherEmoji } from "@common/functions"
+import { currentTime, memoryUsage, notificationsLength, setShowLeftSidebar, setShowRightSidebar, showLeftSidebar, showRightSidebar, weatherReport } from "@common/vars"
+import { Accessor, createBinding, createState, For, With } from "ags"
 
 function TrayModule() {
   const tray = AstalTray.get_default()
@@ -122,7 +122,7 @@ function Workspaces() {
 
   return <box class="Workspaces">
     <For each={workspaces(sorted)}>
-      {(ws) => (
+      {(ws: AstalHyprland.Workspace) => (
         <button
           class={createBinding(hypr, "focusedWorkspace").as(fw => ws === fw ? "focused" : "")}
           onClicked={() => ws.focus()}
@@ -134,23 +134,28 @@ function Workspaces() {
   </box>
 }
 
-// function Weather() {
-//   const visible = Variable<boolean>(false)
-//   return <revealer
-//     transitionType={Gtk.RevealerTransitionType.SLIDE_RIGHT}
-//     revealChild={visible()}>
-//     {bind(weatherReport).as((data) => {
-//       if (data) {
-//         const condition = data.weather.current_condition[0]
-//         const temp = condition.temp_C
-//         const emoji = getWeatherEmoji(condition.weatherDesc[0].value)
-//         visible.set(true)
-//         return <label className="Weather" label={`${temp}°C ${emoji}`} />
-//       }
-//       return <box />
-//     })}
-//   </revealer>
-// }
+function Weather() {
+  const [visible, setVisible] = createState(true)
+  return (
+    <revealer
+      transitionType={Gtk.RevealerTransitionType.SLIDE_RIGHT}
+      revealChild={visible}
+    >
+      <With value={weatherReport}>
+        {(value) => {
+          if (value?.weather) {
+            const condition = value.weather.current_condition[0]
+            const temp = condition.temp_C
+            const emoji = getWeatherEmoji(condition.weatherDesc[0].value)
+            setVisible(true)
+            return <label class="Weather" label={`${temp}°C ${emoji}`} />
+          }
+          return <box />
+        }}
+      </With>
+    </revealer>
+  )
+}
 
 function NotificationBell() {
   return <revealer
@@ -203,7 +208,7 @@ export default function Bar(monitor: Gdk.Monitor, visible: Accessor<boolean>) {
           >
             <box>
               <Time />
-              {/* <Weather /> */}
+              <Weather />
             </box>
           </button>
           <Workspaces />
