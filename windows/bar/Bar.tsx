@@ -44,17 +44,17 @@ function NetworkModule() {
   const wired = createBinding(network, "wired")
 
   return (
-    <box>
-      <box visible={wifi(Boolean)}>
+    <box class="Network">
+      <box class="Wifi" visible={wifi(Boolean)}>
         <With value={wifi}>
           {(wifi) =>
-            wifi && (
+            wifi.enabled && (
               <image iconName={createBinding(wifi, "iconName")} />
             )
           }
         </With>
       </box>
-      <box visible={wired(Boolean)}>
+      <box class="Wired" visible={wired(Boolean)}>
         <With value={wired}>
           {(wired) =>
             wired && (
@@ -178,7 +178,7 @@ function Memory() {
 
 function Time() {
   return (
-    <box>
+    <box class="Time">
       <With value={currentTime}>
         {(time) => <label label={time} />}
       </With>

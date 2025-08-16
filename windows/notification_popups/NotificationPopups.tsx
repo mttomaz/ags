@@ -6,13 +6,13 @@ import { For, createState, onCleanup } from "ags"
 import Gdk from "gi://Gdk?version=4.0"
 import { setNotificationsLength } from "@common/vars"
 
+export const [notifications, setNotifications] = createState(
+  new Array<AstalNotifd.Notification>(),
+)
+
 export default function NotificationPopups(monitor: Gdk.Monitor) {
 
   const notifd = AstalNotifd.get_default()
-
-  const [notifications, setNotifications] = createState(
-    new Array<AstalNotifd.Notification>(),
-  )
 
   const notifiedHandler = notifd.connect("notified", (_, id, replaced) => {
     const notification = notifd.get_notification(id)
@@ -41,8 +41,8 @@ export default function NotificationPopups(monitor: Gdk.Monitor) {
       application={app}
       visible={notifications((ns) => {
         setNotificationsLength(ns.length)
-        return ns.length > 0 })
-      }
+        return ns.length > 0
+      })}
       anchor={Astal.WindowAnchor.TOP | Astal.WindowAnchor.RIGHT}
     >
       <box orientation={Gtk.Orientation.VERTICAL}>

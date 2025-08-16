@@ -4,6 +4,9 @@ import Adw from "gi://Adw"
 import GLib from "gi://GLib"
 import AstalNotifd from "gi://AstalNotifd"
 import Pango from "gi://Pango"
+import { timeout } from "ags/time"
+import { setNotifications } from "@windows/notification_popups/NotificationPopups"
+import { escapeMarkup } from "@common/functions"
 
 function isIcon(icon?: string | null) {
   const iconTheme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default()!)
@@ -39,7 +42,12 @@ export default function Notification({ notification: n }: NotificationProps) {
   return (
     <Adw.Clamp maximumSize={400}>
       <box
-        widthRequest={400}
+        $={() => {
+          timeout(5000, () => {
+            setNotifications((ns) => ns.filter((notif) => notif.id !== n.id))
+          })
+        }}
+        widthRequest={300}
         class={`Notification ${urgency(n)}`}
         orientation={Gtk.Orientation.VERTICAL}
       >
@@ -97,7 +105,7 @@ export default function Notification({ notification: n }: NotificationProps) {
                 halign={Gtk.Align.START}
                 xalign={0}
                 justify={Gtk.Justification.FILL}
-                label={n.body}
+                label={escapeMarkup(n.body)}
               />
             )}
           </box>
