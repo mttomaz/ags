@@ -2,10 +2,11 @@ import app from "ags/gtk4/app"
 import Bar from "@windows/bar/Bar"
 import Gdk from "gi://Gdk?version=4.0"
 import requestHandler from "./requestHandler"
-import { showBar, showCrosshair } from "@common/vars"
+import { showBar, showCrosshair, showLeftSidebar } from "@common/vars"
 import { compileScss } from "@common/cssHotReload"
 import NotificationPopups from "@windows/notification_popups/NotificationPopups"
 import Crosshair from "@windows/crosshair/Crosshair"
+import LeftSidebar from "@windows/left_sidebar/LeftSidebar"
 
 function getTargetMonitor(monitors: Array<Gdk.Monitor>) {
   const notebookModel = "0x9051"
@@ -24,6 +25,7 @@ app.start({
   main() {
     const targetMonitor = getTargetMonitor(app.get_monitors())
     Bar(targetMonitor, showBar)
+    LeftSidebar(targetMonitor, showLeftSidebar)
     NotificationPopups(targetMonitor)
     Crosshair(targetMonitor, showCrosshair)
 
