@@ -177,9 +177,13 @@ function Memory() {
 }
 
 function Time() {
-  return <With value={currentTime}>
-    {(time) => <label label={time} />}
-  </With>
+  return (
+    <box>
+      <With value={currentTime}>
+        {(time) => <label label={time} />}
+      </With>
+    </box>
+  )
 }
 
 export default function Bar(monitor: Gdk.Monitor, visible: Accessor<boolean>) {
