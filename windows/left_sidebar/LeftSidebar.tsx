@@ -4,19 +4,9 @@ import Gdk from "gi://Gdk?version=4.0"
 import app from "ags/gtk4/app"
 import { Accessor, With } from "ags"
 import { getWeatherEmoji, getWeatherImage } from "@common/functions"
-import { currentDay, currentTime, weatherReport } from "@common/vars"
-// import Time from "@widgets/Time/Time"
+import { currentDay, weatherReport } from "@common/vars"
+import Time from "@widgets/Time/Time"
 
-
-function Time() {
-  return (
-    <box class="Time" halign={Gtk.Align.CENTER}>
-      <With value={currentTime}>
-        {(time) => <label label={time} />}
-      </With>
-    </box>
-  )
-}
 
 function TimeAndDate() {
   return (

@@ -8,7 +8,7 @@ import AstalHyprland from "gi://AstalHyprland"
 import AstalMpris from "gi://AstalMpris"
 import AstalNetwork from "gi://AstalNetwork"
 import AstalTray from "gi://AstalTray"
-// import Time from "@widgets/Time/Time"
+import Time from "@widgets/Time/Time"
 import { getWeatherEmoji } from "@common/functions"
 import { currentTime, memoryUsage, notificationsLength, setShowLeftSidebar, setShowRightSidebar, showLeftSidebar, showRightSidebar, weatherReport } from "@common/vars"
 import { Accessor, createBinding, createState, For, With } from "ags"
@@ -174,16 +174,6 @@ function Memory() {
       />
     }
   </With>
-}
-
-function Time() {
-  return (
-    <box class="Time">
-      <With value={currentTime}>
-        {(time) => <label label={time} />}
-      </With>
-    </box>
-  )
 }
 
 export default function Bar(monitor: Gdk.Monitor, visible: Accessor<boolean>) {

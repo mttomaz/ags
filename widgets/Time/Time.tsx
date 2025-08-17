@@ -5,20 +5,21 @@ import { With } from "ags"
 function DigitStack(index: number) {
   return (
     <box>
-      <With value={currentTime}>
-        {(time) => (
-          <stack
-            transitionType={Gtk.StackTransitionType.SLIDE_DOWN}
-            transitionDuration={500}
-            visibleChildName={time?.[index] ?? "0"}
-            class="DigitStack"
-          >
-            {Array.from({ length: 10 }, (_, i) => (
-              <label name={i.toString()} label={i.toString()} />
-            ))}
-          </stack>
-        )}
-      </With>
+      <stack
+        $={(self) => (<With value={currentTime}>
+          {(time) => {
+            self.visibleChildName = time?.[index] ?? "0"
+            return null
+          }}
+        </With>)}
+        transitionDuration={500}
+        transitionType={Gtk.StackTransitionType.SLIDE_UP_DOWN}
+        class="DigitStack"
+      >
+        {Array.from({ length: 10 }, (_, i) => (
+          <label $type="named" name={i.toString()} label={i.toString()} />
+        ))}
+      </stack>
     </box>
   )
 }
