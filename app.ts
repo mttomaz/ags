@@ -7,6 +7,7 @@ import { compileScss } from "@common/cssHotReload"
 import NotificationPopups from "@windows/notification_popups/NotificationPopups"
 import Crosshair from "@windows/crosshair/Crosshair"
 import LeftSidebar from "@windows/left_sidebar/LeftSidebar"
+import OSD from "@windows/osd/OSD"
 
 function getTargetMonitor(monitors: Array<Gdk.Monitor>) {
   const notebookModel = "0x9051"
@@ -26,6 +27,7 @@ app.start({
     const targetMonitor = getTargetMonitor(app.get_monitors())
     Bar(targetMonitor, showBar)
     LeftSidebar(targetMonitor, showLeftSidebar)
+    OSD(targetMonitor)
     NotificationPopups(targetMonitor)
     Crosshair(targetMonitor, showCrosshair)
 
