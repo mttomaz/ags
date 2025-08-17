@@ -3,7 +3,7 @@ import Gtk from "gi://Gtk?version=4.0"
 import Gdk from "gi://Gdk?version=4.0"
 import app from "ags/gtk4/app"
 import { Accessor, With } from "ags"
-import { getWeatherEmoji, getWeatherImage } from "@common/functions"
+import { getWeatherEmoji, getWeatherImage, pathToURI } from "@common/functions"
 import { currentDay, weatherReport } from "@common/vars"
 import Time from "@widgets/Time/Time"
 
@@ -62,14 +62,15 @@ function WeatherSidebar() {
           const current = data.weather.current_condition[0]
           const upcoming = getUpcomingHours(data.weather.weather[0].hourly)
           const image = getWeatherImage(current.weatherDesc[0].value)
+          const imagePath = pathToURI(`${SRC}/assets/weather/${image}`)
 
           return <box
             class="Weather"
             orientation={Gtk.Orientation.VERTICAL}>
-            <overlay vexpand hexpand>
-              <image class="Image" file={`${SRC}/assets/weather/${image}`} />
+            <box
+              class="Image"
+              css={`background-image: url('${imagePath}')`}>
               <box
-                $type="overlay"
                 class="Current">
                 <box orientation={Gtk.Orientation.VERTICAL} halign={Gtk.Align.START}>
                   <label
@@ -107,7 +108,7 @@ function WeatherSidebar() {
                   </box>
                 </box>
               </box>
-            </overlay>
+            </box>
             <box
               class="HourlyForecast"
               homogeneous>

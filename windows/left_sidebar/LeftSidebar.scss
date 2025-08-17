@@ -105,10 +105,11 @@ window.LeftSidebar {
     border-radius: 16px;
     box-shadow: 0px 0px 5px rgba(black, 0.2);
     .Image {
-      min-height: 200px;
-      min-width: 200px;
+      background-position: left;
       background-size: cover;
-      background-position: center;
+      border-radius: 16px;
+      min-height: 160px;
+      min-width: 300px;
     }
     .Current {
       background: linear-gradient(to left, rgba($bg1, 0.4), rgba($bg1, 0.1));
