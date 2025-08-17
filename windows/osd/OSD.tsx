@@ -23,9 +23,9 @@ export default function OSD(monitor: Gdk.Monitor) {
   const brightness = Brightness.get_default()
   const speaker = AstalWp.get_default()!.get_default_speaker()
 
-  const [ visible, setVisible ] = createState(false)
-  const [ icon, setIcon ] = createState("")
-  const [ value, setValue ] = createState(0)
+  const [visible, setVisible] = createState(false)
+  const [icon, setIcon] = createState("")
+  const [value, setValue] = createState(0)
 
   let count = 0
   function show(v: number, icon: string) {
@@ -38,6 +38,7 @@ export default function OSD(monitor: Gdk.Monitor) {
       if (count === 0) setVisible(false)
     })
   }
+
   return (
     <window
       gdkmonitor={monitor}
@@ -48,35 +49,35 @@ export default function OSD(monitor: Gdk.Monitor) {
       layer={Astal.Layer.OVERLAY}
       anchor={Astal.WindowAnchor.RIGHT}
     >
-    <box
-      $={() => {
-        hook(brightness, "notify::screen", () =>
-          show(brightness.screen, "display-brightness-symbolic"),
-        )
-
-        if (speaker) {
-          hook(speaker, "notify::volume", () =>
-            show(speaker.volume, speaker.volumeIcon),
+      <box
+        $={() => {
+          hook(brightness, "notify::screen", () =>
+            show(brightness.screen, "display-brightness-symbolic"),
           )
-        }
 
-        hook(spotifyPlayer, "notify::volume", () =>
-          show(spotifyPlayer.volume, "spotify")
-        )
-      }}>
-      <box orientation={Gtk.Orientation.VERTICAL} class="OSD">
-        <image iconName={icon} />
-        <levelbar
-          valign={Gtk.Align.CENTER}
-          heightRequest={100}
-          widthRequest={8}
-          orientation={Gtk.Orientation.VERTICAL}
-          inverted
-          value={value}
-        />
-        <label label={value(v => `${Math.floor(v * 100)}%`)} />
+          if (speaker) {
+            hook(speaker, "notify::volume", () =>
+              show(speaker.volume, speaker.volumeIcon),
+            )
+          }
+
+          hook(spotifyPlayer, "notify::volume", () =>
+            show(spotifyPlayer.volume, "spotify")
+          )
+        }}>
+        <box orientation={Gtk.Orientation.VERTICAL} class="OSD">
+          <image iconName={icon} />
+          <levelbar
+            valign={Gtk.Align.CENTER}
+            heightRequest={100}
+            widthRequest={8}
+            orientation={Gtk.Orientation.VERTICAL}
+            inverted
+            value={value}
+          />
+          <label label={value(v => `${Math.floor(v * 100)}%`)} />
+        </box>
       </box>
-    </box>
     </window>
   )
 }

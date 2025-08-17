@@ -10,7 +10,7 @@ import AstalNetwork from "gi://AstalNetwork"
 import AstalTray from "gi://AstalTray"
 import Time from "@widgets/Time/Time"
 import { getWeatherEmoji } from "@common/functions"
-import { currentTime, memoryUsage, notificationsLength, setShowLeftSidebar, setShowRightSidebar, showLeftSidebar, showRightSidebar, weatherReport } from "@common/vars"
+import { memoryUsage, notificationsLength, setShowLeftSidebar, setShowRightSidebar, showLeftSidebar, showRightSidebar, weatherReport } from "@common/vars"
 import { Accessor, createBinding, createState, For, With } from "ags"
 
 function TrayModule() {

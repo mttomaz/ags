@@ -1,0 +1,56 @@
+import Notification from "@widgets/Notification/Notification"
+import AstalNotifd from "gi://AstalNotifd?version=0.1"
+import Gtk from "gi://Gtk?version=4.0"
+import { createBinding, With } from "gnim"
+
+
+export default function NotificationList() {
+  const notifd = AstalNotifd.get_default()
+
+  return <box class="NotificationList">
+    <With value={createBinding(notifd, "notifications")}>
+      {(notifs: Array<AstalNotifd.Notification>) => {
+        const nLength = notifs.length
+        {/* setNotificationsLength(nLength) */ }
+        const boxHeight = nLength > 0 ? 400 : 300
+        return <box orientation={Gtk.Orientation.VERTICAL}
+          heightRequest={boxHeight}
+          widthRequest={300}
+        >
+          <box>
+            <label class="Title" label="Notifications" />
+            <button
+              class="dismissAll"
+              halign={Gtk.Align.END}
+              hexpand
+              label="Clear All"
+              onClicked={() => notifs.forEach(n => n.dismiss())}
+            />
+          </box>
+          {nLength > 0 ? (
+            <scrolledwindow vexpand>
+              <box orientation={Gtk.Orientation.VERTICAL}>
+                {notifs.reverse().map(n => {
+                  return Notification({
+                    notification: n,
+                  })
+                })}
+              </box>
+            </scrolledwindow>
+          ) : (
+            <box
+              class="noNotifications"
+              vexpand
+              hexpand
+              orientation={Gtk.Orientation.VERTICAL}
+              valign={Gtk.Align.CENTER}
+            >
+              <label label="󱏬" class="Icon" />
+              <label label="no notifications :(" />
+            </box>
+          )}
+        </box>
+      }}
+    </With>
+  </box>
+}
