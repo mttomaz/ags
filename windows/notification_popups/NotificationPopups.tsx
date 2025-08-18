@@ -1,10 +1,10 @@
-import app from "ags/gtk4/app"
-import { Astal, Gtk } from "ags/gtk4"
-import AstalNotifd from "gi://AstalNotifd"
-import Notification from "@widgets/Notification/Notification"
-import { For, createState, onCleanup } from "ags"
 import Gdk from "gi://Gdk?version=4.0"
-import { setNotificationsLength } from "@common/vars"
+import Gtk from "gi://Gtk?version=4.0"
+import { Astal } from "ags/gtk4"
+import app from "ags/gtk4/app"
+import { For, createState, onCleanup } from "ags"
+import AstalNotifd from "gi://AstalNotifd?version=0.1"
+import Notification from "@widgets/Notification/Notification"
 
 export const [notifications, setNotifications] = createState(
   new Array<AstalNotifd.Notification>(),
@@ -39,10 +39,7 @@ export default function NotificationPopups(monitor: Gdk.Monitor) {
       class="NotificationPopups"
       gdkmonitor={monitor}
       application={app}
-      visible={notifications((ns) => {
-        setNotificationsLength(ns.length)
-        return ns.length > 0
-      })}
+      visible={notifications((ns) => ns.length > 0)}
       anchor={Astal.WindowAnchor.TOP | Astal.WindowAnchor.RIGHT}
     >
       <box orientation={Gtk.Orientation.VERTICAL}>

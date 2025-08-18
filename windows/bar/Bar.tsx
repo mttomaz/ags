@@ -1,17 +1,17 @@
-import { Astal } from "ags/gtk4"
 import Gtk from "gi://Gtk?version=4.0"
 import Gdk from "gi://Gdk?version=4.0"
+import { Astal } from "ags/gtk4"
 import app from "ags/gtk4/app"
-import AstalBattery from "gi://AstalBattery"
-import AstalBluetooth from "gi://AstalBluetooth"
-import AstalHyprland from "gi://AstalHyprland"
-import AstalMpris from "gi://AstalMpris"
-import AstalNetwork from "gi://AstalNetwork"
-import AstalTray from "gi://AstalTray"
+import { Accessor, createBinding, createState, For, With } from "ags"
+import AstalBattery from "gi://AstalBattery?version=0.1"
+import AstalBluetooth from "gi://AstalBluetooth?version=0.1"
+import AstalHyprland from "gi://AstalHyprland?version=0.1"
+import AstalMpris from "gi://AstalMpris?version=0.1"
+import AstalNetwork from "gi://AstalNetwork?version=0.1"
+import AstalTray from "gi://AstalTray?version=0.1"
 import Time from "@widgets/Time/Time"
 import { getWeatherEmoji } from "@common/functions"
 import { memoryUsage, notificationsLength, setShowLeftSidebar, setShowRightSidebar, showLeftSidebar, showRightSidebar, weatherReport } from "@common/vars"
-import { Accessor, createBinding, createState, For, With } from "ags"
 
 function TrayModule() {
   const tray = AstalTray.get_default()
@@ -166,7 +166,7 @@ function Weather() {
 function NotificationBell() {
   return <revealer
     transitionType={Gtk.RevealerTransitionType.SLIDE_LEFT}
-    revealChild={notificationsLength.as(l => l > 1)}>
+    revealChild={notificationsLength.as((l) => l > 1)}>
     <label class="NotificationBell" label="󱅫" />
   </revealer>
 }

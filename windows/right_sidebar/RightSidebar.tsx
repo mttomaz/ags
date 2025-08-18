@@ -1,14 +1,14 @@
-import { Astal } from "ags/gtk4"
 import Gtk from "gi://Gtk?version=4.0"
 import Gdk from "gi://Gdk?version=4.0"
+import { Astal } from "ags/gtk4"
 import app from "ags/gtk4/app"
-import { exec } from "ags/process"
-import { doNotDisturb, setDoNotDisturb, uptime } from "@common/vars"
 import { Accessor, createBinding, With } from "ags"
-import { pathToURI } from "@common/functions"
-import NotificationList from "./panels/notification"
+import { exec } from "ags/process"
 import AstalNetwork from "gi://AstalNetwork?version=0.1"
 import AstalBluetooth from "gi://AstalBluetooth?version=0.1"
+import NotificationList from "./panels/notification"
+import { uptime } from "@common/vars"
+import { pathToURI } from "@common/functions"
 
 
 function sidebarButton(icon: string | Accessor<string>, name: string | Accessor<string>, status: string | Accessor<string>) {

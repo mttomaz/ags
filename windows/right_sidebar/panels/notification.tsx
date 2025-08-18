@@ -1,7 +1,8 @@
-import Notification from "@widgets/Notification/Notification"
-import AstalNotifd from "gi://AstalNotifd?version=0.1"
 import Gtk from "gi://Gtk?version=4.0"
-import { createBinding, With } from "gnim"
+import AstalNotifd from "gi://AstalNotifd?version=0.1"
+import { createBinding, With } from "ags"
+import Notification from "@widgets/Notification/Notification"
+import { setNotificationsLength } from "@common/vars"
 
 
 export default function NotificationList() {
@@ -11,7 +12,7 @@ export default function NotificationList() {
     <With value={createBinding(notifd, "notifications")}>
       {(notifs: Array<AstalNotifd.Notification>) => {
         const nLength = notifs.length
-        {/* setNotificationsLength(nLength) */ }
+        setNotificationsLength(nLength)
         const boxHeight = nLength > 0 ? 400 : 300
         return <box orientation={Gtk.Orientation.VERTICAL}
           heightRequest={boxHeight}
