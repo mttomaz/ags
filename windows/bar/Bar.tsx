@@ -42,27 +42,33 @@ function NetworkModule() {
   const network = AstalNetwork.get_default()
   const wifi = createBinding(network, "wifi")
   const wired = createBinding(network, "wired")
+  const wifiEnabled = createBinding(network.wifi, "enabled")
+  const wiredState = createBinding(network.wired, "state")
 
   return (
     <box class="Network">
-      <box class="Wifi" visible={wifi(Boolean)}>
+      <revealer
+        class="Wifi"
+        revealChild={wifiEnabled}
+        transitionType={Gtk.RevealerTransitionType.SLIDE_LEFT}
+      >
         <With value={wifi}>
-          {(wifi) =>
-            wifi.enabled && (
-              <image iconName={createBinding(wifi, "iconName")} />
-            )
-          }
+          {(wifi) => (
+            <image class="Icon" iconName={createBinding(wifi, "iconName")} />
+          )}
         </With>
-      </box>
-      <box class="Wired" visible={wired(Boolean)}>
+      </revealer>
+      <revealer
+        class="Wired"
+        revealChild={wiredState((state) => state === AstalNetwork.DeviceState.ACTIVATED)}
+        transitionType={Gtk.RevealerTransitionType.SLIDE_LEFT}
+      >
         <With value={wired}>
-          {(wired) =>
-            wired && (
-              <image iconName={createBinding(wired, "iconName")} />
-            )
-          }
+          {(wired) => (
+            <image class="Icon" iconName={createBinding(wired, "iconName")} />
+          )}
         </With>
-      </box>
+      </revealer>
     </box>
   )
 }
