@@ -75,31 +75,31 @@ function BluetoothModule() {
   const connected = createBinding(bluetooth, "isConnected")
   const powered = createBinding(bluetooth, "isPowered")
 
-  function getConnectedDevice(enabled: Boolean | Accessor<Boolean>) {
+  function getConnectedDevice(enabled: Accessor<Boolean>) {
     for (const device of bluetooth.get_devices()) {
       if (device.connected) {
         const icon = device.icon
         const name = device.name
         const status = createBinding(device, "batteryPercentage").as(p =>
-          p > 0 ? `${Math.floor(p * 100)}%` : enabled ? "on" : "off")
+          p > 0 ? `${Math.floor(p * 100)}%` : enabled((enabled) => enabled ? "on" : "off"))
         return { icon, name, status }
       }
     }
     const icon = "bluetooth-active-symbolic"
     const name = "Bluetooth"
-    const status = enabled ? "on" : "off"
+    const status = enabled((enabled) => enabled ? "on" : "off")
     return { icon, name, status }
   }
 
   return <box class="Bluetooth" halign={Gtk.Align.CENTER}>
     <button
-      class={powered.as((p) => p ? "enabled" : "disabled")}
+      class={powered((p) => p ? "enabled" : "disabled")}
       onClicked={() => setCurrentPanel("bluetooth")}
     >
       <With value={connected}>
         {() => {
           const { icon, name, status } = getConnectedDevice(powered)
-          return sidebarButton(icon, name, status)
+          return sidebarButton(icon, name, status.as((s) => s.toString()))
         }}
       </With>
     </button>
