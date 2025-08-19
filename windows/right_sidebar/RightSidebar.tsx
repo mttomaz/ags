@@ -2,15 +2,17 @@ import Gtk from "gi://Gtk?version=4.0"
 import Gdk from "gi://Gdk?version=4.0"
 import { Astal } from "ags/gtk4"
 import app from "ags/gtk4/app"
-import { Accessor, createBinding, For, With } from "ags"
+import { Accessor, createBinding, createState, For, With } from "ags"
 import { exec } from "ags/process"
 import AstalNetwork from "gi://AstalNetwork?version=0.1"
 import AstalBluetooth from "gi://AstalBluetooth?version=0.1"
 import AstalMpris from "gi://AstalMpris?version=0.1"
-import NotificationList from "./panels/notification"
+import NotificationPanel from "./panels/notification"
 import { uptime } from "@common/vars"
 import { pathToURI } from "@common/functions"
 import MediaPlayer from "@widgets/MediaPlayer/MediaPlayer"
+import WifiPanel from "./panels/wifi"
+import BluetoothPanel from "./panels/bluetooth"
 
 
 function sidebarButton(icon: string | Accessor<string>, name: string | Accessor<string>, status: string | Accessor<string>) {
@@ -57,7 +59,7 @@ function WifiModule() {
           return (
             <button
               class={wifiEnabled.as((enabled) => enabled ? "enabled" : "disabled")}
-              onClicked={() => wifi.set_enabled(!wifiEnabled.get())}
+              onClicked={() => setCurrentPanel("wifi")}
             >
               {sidebarButton(icon, name, status)}
             </button>
@@ -92,7 +94,7 @@ function BluetoothModule() {
   return <box class="Bluetooth" halign={Gtk.Align.CENTER}>
     <button
       class={powered.as((p) => p ? "enabled" : "disabled")}
-      onClicked={() => exec("rfkill toggle bluetooth")}
+      onClicked={() => setCurrentPanel("bluetooth")}
     >
       <With value={connected}>
         {() => {
@@ -118,6 +120,26 @@ function UserModule() {
   </box>
 }
 
+const [currentPanel,setCurrentPanel] = createState("notification")
+
+function PanelStack() {
+
+  return (
+    <box class="PanelStack">
+      <stack
+        $={(self) => self.visibleChildName = currentPanel.get()}
+        transitionDuration={350}
+        visibleChildName={currentPanel}
+        transitionType={Gtk.StackTransitionType.SLIDE_LEFT_RIGHT}
+      >
+        <NotificationPanel />
+        <WifiPanel />
+        <BluetoothPanel />
+      </stack>
+    </box>
+  )
+}
+
 export default function RightSidebar(monitor: Gdk.Monitor, visible: Accessor<boolean>) {
   const { TOP, RIGHT } = Astal.WindowAnchor
 
@@ -128,6 +150,7 @@ export default function RightSidebar(monitor: Gdk.Monitor, visible: Accessor<boo
     exclusivity={Astal.Exclusivity.EXCLUSIVE}
     application={app}
     visible={visible}
+    $={(self) => self.connect("hide", () => setCurrentPanel("notification"))}
     layer={Astal.Layer.TOP}
     anchor={TOP | RIGHT}>
     <box
@@ -145,7 +168,7 @@ export default function RightSidebar(monitor: Gdk.Monitor, visible: Accessor<boo
         </box>
       </box>
       <SidebarPlayers />
-      <NotificationList />
+      <PanelStack />
     </box>
   </window>
 }

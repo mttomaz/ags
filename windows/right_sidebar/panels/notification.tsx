@@ -5,17 +5,16 @@ import Notification from "@widgets/Notification/Notification"
 import { setNotificationsLength } from "@common/vars"
 
 
-export default function NotificationList() {
+export default function NotificationPanel() {
   const notifd = AstalNotifd.get_default()
 
-  return <box class="NotificationList">
+  return <box class="NotificationList" $type="named" name="notification">
     <With value={createBinding(notifd, "notifications")}>
       {(notifs: Array<AstalNotifd.Notification>) => {
         const nLength = notifs.length
         setNotificationsLength(nLength)
-        const boxHeight = nLength > 0 ? 400 : 300
         return <box orientation={Gtk.Orientation.VERTICAL}
-          heightRequest={boxHeight}
+          heightRequest={400}
           widthRequest={300}
         >
           <box>
