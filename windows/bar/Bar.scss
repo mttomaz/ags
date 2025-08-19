@@ -54,18 +54,12 @@ window.Bar {
 
   .Time,
   .Memory,
+  .Network,
   .Weather,
   .Battery,
   .Bluetooth,
   .NotificationBell {
     padding: 0 6px;
-  }
-
-  .Network {
-    padding: 0 0px;
-    .Icon {
-      padding: 0 6px;
-    }
   }
 
   .Battery label {

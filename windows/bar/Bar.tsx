@@ -11,7 +11,7 @@ import AstalNetwork from "gi://AstalNetwork?version=0.1"
 import AstalTray from "gi://AstalTray?version=0.1"
 import Time from "@widgets/Time/Time"
 import { getWeatherEmoji } from "@common/functions"
-import { memoryUsage, notificationsLength, setShowLeftSidebar, setShowRightSidebar, showLeftSidebar, showRightSidebar, weatherReport } from "@common/vars"
+import { weatherReport, notificationsLength, memoryUsage, setShowLeftSidebar, showLeftSidebar, setShowRightSidebar, showRightSidebar } from "@common/vars"
 
 function TrayModule() {
   const tray = AstalTray.get_default()
@@ -40,35 +40,31 @@ function TrayModule() {
 
 function NetworkModule() {
   const network = AstalNetwork.get_default()
-  const wifi = createBinding(network, "wifi")
-  const wired = createBinding(network, "wired")
-  const wifiEnabled = createBinding(network.wifi, "enabled")
-  const wiredState = createBinding(network.wired, "state")
+  const primary = createBinding(network, "primary")
 
   return (
-    <box class="Network">
-      <revealer
-        class="Wifi"
-        revealChild={wifiEnabled}
-        transitionType={Gtk.RevealerTransitionType.SLIDE_LEFT}
-      >
-        <With value={wifi}>
-          {(wifi) => (
-            <image class="Icon" iconName={createBinding(wifi, "iconName")} />
-          )}
-        </With>
-      </revealer>
-      <revealer
-        class="Wired"
-        revealChild={wiredState((state) => state === AstalNetwork.DeviceState.ACTIVATED)}
-        transitionType={Gtk.RevealerTransitionType.SLIDE_LEFT}
-      >
-        <With value={wired}>
-          {(wired) => (
-            <image class="Icon" iconName={createBinding(wired, "iconName")} />
-          )}
-        </With>
-      </revealer>
+    <box
+      class="Network"
+      visible={primary((p) => p !== AstalNetwork.Primary.UNKNOWN)}
+    >
+      <With value={primary}>
+        {(primary) =>
+          primary === AstalNetwork.Primary.WIFI ? (
+            <image
+              class="Icon"
+              tooltipText={createBinding(network.wifi, "ssid")}
+              iconName={createBinding(network.wifi, "iconName")}
+            />
+          ) : (
+            primary === AstalNetwork.Primary.WIRED && (
+              <image
+                class="Icon"
+                iconName={createBinding(network.wired, "iconName")}
+              />
+            )
+          )
+        }
+      </With>
     </box>
   )
 }
