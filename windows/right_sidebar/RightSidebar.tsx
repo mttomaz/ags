@@ -2,13 +2,15 @@ import Gtk from "gi://Gtk?version=4.0"
 import Gdk from "gi://Gdk?version=4.0"
 import { Astal } from "ags/gtk4"
 import app from "ags/gtk4/app"
-import { Accessor, createBinding, With } from "ags"
+import { Accessor, createBinding, For, With } from "ags"
 import { exec } from "ags/process"
 import AstalNetwork from "gi://AstalNetwork?version=0.1"
 import AstalBluetooth from "gi://AstalBluetooth?version=0.1"
+import AstalMpris from "gi://AstalMpris?version=0.1"
 import NotificationList from "./panels/notification"
 import { uptime } from "@common/vars"
 import { pathToURI } from "@common/functions"
+import MediaPlayer from "@widgets/MediaPlayer/MediaPlayer"
 
 
 function sidebarButton(icon: string | Accessor<string>, name: string | Accessor<string>, status: string | Accessor<string>) {
@@ -22,6 +24,19 @@ function sidebarButton(icon: string | Accessor<string>, name: string | Accessor<
         <label halign={Gtk.Align.START} label={name} />
         <label halign={Gtk.Align.START} label={status} />
       </box>
+    </box>
+  )
+}
+
+function SidebarPlayers() {
+  const mpris = AstalMpris.get_default()
+  const players = createBinding(mpris, "players")
+
+  return (
+    <box orientation={Gtk.Orientation.VERTICAL}>
+      <For each={players}>
+        {(ps) => MediaPlayer(ps)}
+      </For>
     </box>
   )
 }
@@ -121,14 +136,15 @@ export default function RightSidebar(monitor: Gdk.Monitor, visible: Accessor<boo
       <box>
         <UserModule />
       </box>
-      <box>
+      <box homogeneous>
         <box orientation={Gtk.Orientation.VERTICAL}>
           <WifiModule />
         </box>
-        <box orientation={Gtk.Orientation.VERTICAL}>
+        <box orientation={Gtk.Orientation.VERTICAL} css="margin-left: 4px">
           <BluetoothModule />
         </box>
       </box>
+      <SidebarPlayers />
       <NotificationList />
     </box>
   </window>

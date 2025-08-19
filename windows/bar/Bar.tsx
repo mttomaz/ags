@@ -26,7 +26,7 @@ function TrayModule() {
   }
 
   return (
-    <box>
+    <box class="Tray">
       <For each={items}>
         {(item) => (
           <menubutton $={(self) => init(self, item)}>

@@ -29,11 +29,14 @@ window.Bar {
     }
   }
 
-  .SysTray {
+  .Tray {
     padding: 0 2px;
     button {
       background-color: transparent;
-      padding: 0px 3px;
+      padding: 0 3px;
+      &:hover {
+        background-color: $bg2;
+      }
     }
   }
 

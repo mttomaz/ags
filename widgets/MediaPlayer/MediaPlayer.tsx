@@ -1,3 +1,4 @@
+import { pathToURI } from "@common/functions"
 import AstalMpris from "gi://AstalMpris?version=0.1"
 import Gtk from "gi://Gtk?version=4.0"
 import Pango from "gi://Pango?version=1.0"
@@ -14,7 +15,7 @@ export default function MediaPlayer(player: AstalMpris.Player) {
   const [showPosition, setShowPosition] = createState(false)
 
   const coverArt = createBinding(player, "coverArt").as(c =>
-    `background-image: url('${c}')`)
+    `background-image: url('${pathToURI(c)}')`)
 
   const playIcon = createBinding(player, "playbackStatus").as(s =>
     s === 0 ? "󰏤" : "󰐊")
@@ -64,7 +65,9 @@ export default function MediaPlayer(player: AstalMpris.Player) {
         </box>
         <slider
           visible={createBinding(player, "length").as(l => l > 0)}
-          onDragged={({ value }) => player.position = value * player.length}
+          onChangeValue={({ value }) => {
+            player.position = value * player.length
+          }}
           value={position}
         />
       </box>
@@ -91,23 +94,28 @@ export default function MediaPlayer(player: AstalMpris.Player) {
     </box>
   }
 
-  return <eventbox
-    onHover={() => setShowPosition(true)}
-    onHoverLost={() => setShowPosition(false)}>
-    <box class="MediaPlayer" >
+
+  return <box
+    class="MediaPlayer"
+  >
+    <Gtk.EventControllerMotion
+      $={(self) => {
+        self.connect("enter", () => setShowPosition(true))
+        self.connect("leave", () => setShowPosition(false))
+      }}
+    />
+    <box
+      class="Cover"
+      hexpand
+      widthRequest={300}
+      css={coverArt}>
       <box
-        class="Cover"
-        hexpand
-        widthRequest={300}
-        css={coverArt}>
-        <box
-          class="Description"
-          orientation={Gtk.Orientation.VERTICAL}>
-          <ArtistTitle />
-          <Position />
-        </box>
+        class="Description"
+        orientation={Gtk.Orientation.VERTICAL}>
+        <ArtistTitle />
+        <Position />
       </box>
-      <Actions />
     </box>
-  </eventbox>
+    <Actions />
+  </box>
 }
