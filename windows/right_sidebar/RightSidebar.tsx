@@ -217,7 +217,7 @@ export default function RightSidebar(monitor: Gdk.Monitor, visible: Accessor<boo
     exclusivity={Astal.Exclusivity.EXCLUSIVE}
     application={app}
     visible={visible}
-    $={(self) => self.connect("hide", () => setCurrentPanel("notification"))}
+    onHide={() => setCurrentPanel("notification")}
     layer={Astal.Layer.TOP}
     anchor={TOP | RIGHT}>
     <box
@@ -226,13 +226,15 @@ export default function RightSidebar(monitor: Gdk.Monitor, visible: Accessor<boo
       <box>
         <UserModule />
       </box>
-      <box homogeneous>
-        <box orientation={Gtk.Orientation.VERTICAL}>
+      <box orientation={Gtk.Orientation.VERTICAL}>
+        <box>
           <WifiModule />
-          <DoNotDisturbModule />
-        </box>
-        <box orientation={Gtk.Orientation.VERTICAL} css="margin-left: 4px">
+          <box widthRequest={8} hexpand/>
           <BluetoothModule />
+        </box>
+        <box>
+          <DoNotDisturbModule />
+          <box widthRequest={8} hexpand/>
           <NightLightModule />
         </box>
       </box>

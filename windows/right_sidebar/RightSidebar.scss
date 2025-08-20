@@ -71,7 +71,7 @@ window.RightSidebar {
       .disabled {
         padding: 2px 4px;
         border-radius: 20px;
-        min-width: 160px;
+        min-width: 170px;
       }
       .enabled {
         color: $bg1;
@@ -163,6 +163,13 @@ window.RightSidebar {
       .position {
         color: rgba($fg1, 0.7);
         padding: 0px 12px 8px 2px;
+      }
+
+      .Timer {
+        background-color: inherit;
+        &:focus {
+          outline: none;
+        }
       }
     }
 

@@ -13,9 +13,11 @@ function lengthStr(length: number) {
 
 export default function MediaPlayer(player: AstalMpris.Player) {
   const [showPosition, setShowPosition] = createState(false)
+  const [stop, setStop] = createState(false)
 
+  const defaultCover = `${SRC}/assets/speaker.jpg`
   const coverArt = createBinding(player, "coverArt").as(c =>
-    `background-image: url('${pathToURI(c)}')`)
+    `background-image: url('${pathToURI(c || defaultCover)}')`)
 
   const playIcon = createBinding(player, "playbackStatus").as(s =>
     s === 0 ? "󰏤" : "󰐊")
@@ -23,21 +25,24 @@ export default function MediaPlayer(player: AstalMpris.Player) {
   const position = createBinding(player, "position").as(p => player.length > 0
     ? p / player.length : 0)
 
+  const metadata = createBinding(player, "metadata")
+
   function ArtistTitle() {
     return <box orientation={Gtk.Orientation.VERTICAL} hexpand>
       <label
         class="Title"
         ellipsize={Pango.EllipsizeMode.END}
-        maxWidthChars={35}
+        maxWidthChars={28}
         halign={Gtk.Align.START}
         valign={Gtk.Align.START}
-        label={createBinding(player, "metadata").as(() => `${player.title}`)} />
+        tooltipText={metadata(() => `${player.title}`)}
+        label={metadata(() => `${player.title}`)} />
       <label
         class="Artist"
         vexpand
         halign={Gtk.Align.START}
         valign={Gtk.Align.START}
-        label={createBinding(player, "metadata").as(() => {
+        label={metadata(() => {
           if (player.artist) return `${player.artist}`
           if (player.album) return `${player.album}`
           return ""
@@ -61,6 +66,12 @@ export default function MediaPlayer(player: AstalMpris.Player) {
             halign={Gtk.Align.START}
             visible={createBinding(player, "length").as(l => l > 0)}
             label={createBinding(player, "length").as(l => l > 0 ? ` - ${lengthStr(l)}` : " - 0:00")}
+          />
+          <button
+            class="Timer"
+            onClicked={() => setStop(!stop.get())}
+            css={stop(stop => stop ? "color: #c34043;" : "color: #dcd7ba;")}
+            label={"󱎫"}
           />
         </box>
         <slider
@@ -97,6 +108,12 @@ export default function MediaPlayer(player: AstalMpris.Player) {
 
   return <box
     class="MediaPlayer"
+    $={() => createBinding(player, "artUrl").subscribe(() => {
+      if (stop.get()) {
+        player.stop()
+        setStop(false)
+      }
+    })}
   >
     <Gtk.EventControllerMotion
       $={(self) => {
