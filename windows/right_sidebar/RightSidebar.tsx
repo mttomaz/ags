@@ -3,22 +3,30 @@ import Gdk from "gi://Gdk?version=4.0"
 import { Astal } from "ags/gtk4"
 import app from "ags/gtk4/app"
 import { Accessor, createBinding, createState, For, With } from "ags"
-import { exec } from "ags/process"
+import { exec, execAsync } from "ags/process"
 import AstalNetwork from "gi://AstalNetwork?version=0.1"
 import AstalBluetooth from "gi://AstalBluetooth?version=0.1"
 import AstalMpris from "gi://AstalMpris?version=0.1"
 import NotificationPanel from "./panels/notification"
-import { uptime } from "@common/vars"
+import { doNotDisturb, nightLightEnabled, setDoNotDisturb, setNightLightEnabled, uptime } from "@common/vars"
 import { pathToURI } from "@common/functions"
 import MediaPlayer from "@widgets/MediaPlayer/MediaPlayer"
 import WifiPanel from "./panels/wifi"
 import BluetoothPanel from "./panels/bluetooth"
 
 
-function sidebarButton(icon: string | Accessor<string>, name: string | Accessor<string>, status: string | Accessor<string>) {
+function sidebarButton(icon: string | Accessor<string>,
+  name: string | Accessor<string>,
+  status: string | Accessor<string>,
+  useLabel: Boolean
+) {
+  const iconWidget = useLabel
+    ? (<label class="Icon" label={icon} />)
+    : (<image class="Icon" pixelSize={28} iconName={icon} />)
+
   return (
     <box class="sidebarButton">
-      <image iconSize={Gtk.IconSize.LARGE} iconName={icon} />
+      {iconWidget}
       <box
         class="Description"
         orientation={Gtk.Orientation.VERTICAL}
@@ -61,7 +69,7 @@ function WifiModule() {
               class={wifiEnabled.as((enabled) => enabled ? "enabled" : "disabled")}
               onClicked={() => setCurrentPanel("wifi")}
             >
-              {sidebarButton(icon, name, status)}
+              {sidebarButton(icon, name, status, false)}
             </button>
           )
         }}
@@ -99,10 +107,69 @@ function BluetoothModule() {
       <With value={connected}>
         {() => {
           const { icon, name, status } = getConnectedDevice(powered)
-          return sidebarButton(icon, name, status.as((s) => s.toString()))
+          return sidebarButton(icon, name, status.as((s) => s.toString()), false)
         }}
       </With>
     </button>
+  </box>
+}
+
+function DoNotDisturbModule() {
+  const icon = "󰍶"
+  const name = "Do Not Disturb"
+
+  return (
+    <box>
+      <With value={doNotDisturb}>
+        {(dnd) => {
+          const status = dnd ? "on" : "off"
+          return (
+            <box
+              class="doNotDisturb"
+              halign={Gtk.Align.CENTER}>
+              <button
+                class={dnd ? "enabled" : "disabled"}
+                onClicked={() => setDoNotDisturb(!dnd)}>
+                {sidebarButton(icon, name, status, true)}
+              </button>
+            </box>
+          )
+        }}
+      </With>
+    </box>
+  )
+}
+
+function toggleNightLight() {
+  if (nightLightEnabled.get()) {
+    execAsync("pkill -x hyprsunset")
+    setNightLightEnabled(false)
+  } else {
+    execAsync("hyprsunset -t 5000")
+    setNightLightEnabled(true)
+  }
+}
+
+function NightLightModule() {
+  const name = "Night Light"
+  return <box>
+    <With value={nightLightEnabled}>
+      {(enabled) => {
+        const icon = enabled ? "󱩌" : "󰌶"
+        const status = enabled ? "on" : "off"
+        return (
+          <box
+            class="nightLight"
+            halign={Gtk.Align.CENTER}>
+            <button
+              class={enabled ? "enabled" : "disabled"}
+              onClicked={toggleNightLight}>
+              {sidebarButton(icon, name, status, true)}
+            </button>
+          </box>
+        )
+      }}
+    </With>
   </box>
 }
 
@@ -120,7 +187,7 @@ function UserModule() {
   </box>
 }
 
-const [currentPanel,setCurrentPanel] = createState("notification")
+const [currentPanel, setCurrentPanel] = createState("notification")
 
 function PanelStack() {
 
@@ -162,9 +229,11 @@ export default function RightSidebar(monitor: Gdk.Monitor, visible: Accessor<boo
       <box homogeneous>
         <box orientation={Gtk.Orientation.VERTICAL}>
           <WifiModule />
+          <DoNotDisturbModule />
         </box>
         <box orientation={Gtk.Orientation.VERTICAL} css="margin-left: 4px">
           <BluetoothModule />
+          <NightLightModule />
         </box>
       </box>
       <SidebarPlayers />

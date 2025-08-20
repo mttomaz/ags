@@ -8,7 +8,7 @@ import { setNotificationsLength } from "@common/vars"
 export default function NotificationPanel() {
   const notifd = AstalNotifd.get_default()
 
-  return <box class="NotificationList" $type="named" name="notification">
+  return <box class="NotificationPanel" $type="named" name="notification">
     <With value={createBinding(notifd, "notifications")}>
       {(notifs: Array<AstalNotifd.Notification>) => {
         const nLength = notifs.length

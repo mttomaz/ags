@@ -1,5 +1,5 @@
 import Gtk from "gi://Gtk?version=4.0";
-import { createBinding, For } from "ags";
+import { createBinding, createComputed, For } from "ags";
 import { execAsync } from "ags/process";
 import AstalBluetooth from "gi://AstalBluetooth?version=0.1";
 
@@ -12,12 +12,14 @@ export default function BluetoothPanel() {
   function listItem(device: AstalBluetooth.Device) {
     const devConn = createBinding(device, "connected")
     if (device.name === null) return <box/>
-    const visibleBinding = devConn(Boolean) || createBinding(device, "paired")(Boolean)
+    const visibleBinding = createComputed([devConn, createBinding(device, "paired")],
+    (conn, paired) => conn || paired)
     const battery = createBinding(device, "batteryPercentage").as(p =>
       p > 0 ? ` (${Math.floor(p * 100)}%)` : "")
+
     return <box class="Item">
       <box>
-        <image pixelSize={24} iconName={device.icon || "help-browser"} />
+        <image pixelSize={25} iconName={device.icon || "help-browser"} />
         <box orientation={Gtk.Orientation.VERTICAL}>
           <box halign={Gtk.Align.START}>
             <label label={device.name} class="Name" />

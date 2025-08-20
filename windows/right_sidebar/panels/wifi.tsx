@@ -13,7 +13,7 @@ export default function WifiPanel() {
   function itemList(ap: AstalNetwork.AccessPoint) {
     if (ap.ssid === null) return <box />
     return <box class="Item">
-      <image pixelSize={24} iconName={createBinding(ap, "iconName")} />
+      <image pixelSize={25} iconName={createBinding(ap, "iconName")} />
       <box orientation={Gtk.Orientation.VERTICAL} valign={Gtk.Align.CENTER}>
         <label label={ap.ssid} class="ssid" halign={Gtk.Align.START} />
         <label

@@ -30,12 +30,12 @@ window.Bar {
   }
 
   .Tray {
-    padding: 0 2px;
+    padding: 0 4px;
     button {
       background-color: transparent;
-      padding: 0 3px;
+      padding: 0 4px;
       &:hover {
-        background-color: $bg2;
+        background-color: rgba($fg1, 0.1);
       }
     }
   }

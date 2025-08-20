@@ -41,18 +41,24 @@ window.RightSidebar {
     .Bluetooth,
     .doNotDisturb,
     .nightLight {
-      transition-duration: 250ms;
+      transition-duration: 350ms;
       margin-top: 8px;
       border-radius: 20px;
       box-shadow: 0px 0px 5px 0px rgba(black, 0.5);
+      button {
+        &:focus {
+          outline: none;
+          box-shadow: none;
+        }
+      }
       .Icon {
         font-family: $font1;
-        font-size: 24px;
-        padding: 0 2px 0 18px;
+        font-size: 32px;
+        padding-left: 8px;
       }
       .Description {
         font-family: $font2;
-        padding-left: 12px;
+        padding-left: 6px;
         margin: 8px 0px;
         & label:first-child {
           font-weight: 700;
@@ -65,7 +71,7 @@ window.RightSidebar {
       .disabled {
         padding: 2px 4px;
         border-radius: 20px;
-        min-width: 180px;
+        min-width: 160px;
       }
       .enabled {
         color: $bg1;
@@ -78,10 +84,13 @@ window.RightSidebar {
     }
 
     .doNotDisturb .Icon {
-      padding: 0 4px 0 16px;
+      padding: 0 12px 0 12px;
     }
-    .Wifi .Icon {
-      padding: 0 8px 0 12px;
+    .Wifi .Description {
+      padding-left: 10px;
+    }
+    .nightLight .Icon {
+      padding: 0 6px 0 12px;
     }
 
     .MediaPlayer {
@@ -121,6 +130,13 @@ window.RightSidebar {
           padding: 0px 4px;
           margin: 6px;
           border-radius: 12px;
+          &:hover {
+            background-color: rgba($fg1, 0.1);
+          }
+          &:focus {
+            outline: none;
+            box-shadow: none;
+          }
         }
       }
       scale {
@@ -168,7 +184,7 @@ window.RightSidebar {
       }
     }
 
-    .NotificationList {
+    .NotificationPanel {
       margin-top: 16px;
       border-radius: 16px;
       background-color: $bg2;
@@ -215,6 +231,10 @@ window.RightSidebar {
         &:hover {
           color: $bg1;
           background-color: $error;
+        }
+        &:focus {
+          outline: none;
+          box-shadow: none;
         }
       }
     }
