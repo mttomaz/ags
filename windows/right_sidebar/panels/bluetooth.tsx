@@ -19,7 +19,7 @@ export default function BluetoothPanel() {
 
     return <box class="Item">
       <box>
-        <image pixelSize={25} iconName={device.icon || "help-browser"} />
+        <image class="icon" pixelSize={25} iconName={device.icon || "help-browser"} />
         <box orientation={Gtk.Orientation.VERTICAL}>
           <box halign={Gtk.Align.START}>
             <label label={device.name} class="Name" />

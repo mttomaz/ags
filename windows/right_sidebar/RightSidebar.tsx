@@ -7,10 +7,10 @@ import { exec, execAsync } from "ags/process"
 import AstalNetwork from "gi://AstalNetwork?version=0.1"
 import AstalBluetooth from "gi://AstalBluetooth?version=0.1"
 import AstalMpris from "gi://AstalMpris?version=0.1"
-import NotificationPanel from "./panels/notification"
 import { doNotDisturb, nightLightEnabled, setDoNotDisturb, setNightLightEnabled, uptime } from "@common/vars"
 import { pathToURI } from "@common/functions"
 import MediaPlayer from "@widgets/MediaPlayer/MediaPlayer"
+import NotificationPanel from "./panels/notification"
 import WifiPanel from "./panels/wifi"
 import BluetoothPanel from "./panels/bluetooth"
 
@@ -233,7 +233,6 @@ function UserModule() {
 const [currentPanel, setCurrentPanel] = createState("notification")
 
 function PanelStack() {
-
   return (
     <box class="PanelStack">
       <stack
