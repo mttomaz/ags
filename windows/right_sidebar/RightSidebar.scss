@@ -45,12 +45,6 @@ window.RightSidebar {
       margin-top: 8px;
       border-radius: 20px;
       box-shadow: 0px 0px 5px 0px rgba(black, 0.5);
-      button {
-        &:focus {
-          outline: none;
-          box-shadow: none;
-        }
-      }
       .Icon {
         font-family: $font1;
         font-size: 32px;
@@ -133,10 +127,6 @@ window.RightSidebar {
           &:hover {
             background-color: rgba($fg1, 0.1);
           }
-          &:focus {
-            outline: none;
-            box-shadow: none;
-          }
         }
       }
       scale {
@@ -166,10 +156,8 @@ window.RightSidebar {
       }
 
       .Timer {
+        font-size: 20px;
         background-color: inherit;
-        &:focus {
-          outline: none;
-        }
       }
     }
 

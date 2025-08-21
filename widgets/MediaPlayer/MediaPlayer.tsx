@@ -108,6 +108,8 @@ export default function MediaPlayer(player: AstalMpris.Player) {
 
   return <box
     class="MediaPlayer"
+    name={player.entry}
+    $type="named"
     $={() => createBinding(player, "artUrl").subscribe(() => {
       if (stop.get()) {
         player.stop()

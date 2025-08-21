@@ -7,3 +7,7 @@
 @use "./windows/notification_popups/NotificationPopups.scss";
 @use "./widgets/Notification/Notification.scss";
 @use "./windows/crosshair/Crosshair.scss";
+
+button:focus {
+  outline: none;
+}

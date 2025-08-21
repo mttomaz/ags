@@ -41,12 +41,55 @@ function sidebarButton(icon: string | Accessor<string>,
 function SidebarPlayers() {
   const mpris = AstalMpris.get_default()
   const players = createBinding(mpris, "players")
+  const [current, setCurrent] = createState(0)
 
   return (
-    <box orientation={Gtk.Orientation.VERTICAL}>
-      <For each={players}>
-        {(ps) => MediaPlayer(ps)}
-      </For>
+    <box>
+      <With value={players}>
+        {(ps) => {
+          setCurrent(0)
+          return ps.length > 0 ? (
+            <box>
+              <Gtk.EventControllerScroll
+                flags={Gtk.EventControllerScrollFlags.VERTICAL}
+                $={(self) => {
+                  self.connect("scroll", (_, __, dy) => {
+                    const c = current.get()
+                    const max = ps.length - 1
+                    if (dy > 0) {
+                      if (c < max) setCurrent(c + 1)
+                    } else {
+                      if (c > 0) setCurrent(c - 1)
+                    }
+                  })
+                }}
+              />
+              <stack
+                $={(self) => (
+                  <With value={current}>
+                    {(c) => {
+                      if (c) {
+                        self.visibleChildName = ps[c].entry
+                      } else {
+                        self.visibleChildName = ps[0].entry
+                      }
+                      return null
+                    }}
+                  </With>
+                )}
+                transitionType={Gtk.StackTransitionType.SLIDE_LEFT_RIGHT}
+              >
+                <For each={players}>
+                  {(ps) => {
+                    return MediaPlayer(ps)
+                  }
+                  }
+                </For>
+              </stack>
+            </box>
+          ) : (null)
+        }}
+      </With>
     </box>
   )
 }
@@ -229,12 +272,12 @@ export default function RightSidebar(monitor: Gdk.Monitor, visible: Accessor<boo
       <box orientation={Gtk.Orientation.VERTICAL}>
         <box>
           <WifiModule />
-          <box widthRequest={8} hexpand/>
+          <box widthRequest={8} hexpand />
           <BluetoothModule />
         </box>
         <box>
           <DoNotDisturbModule />
-          <box widthRequest={8} hexpand/>
+          <box widthRequest={8} hexpand />
           <NightLightModule />
         </box>
       </box>
