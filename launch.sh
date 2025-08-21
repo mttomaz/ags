@@ -5,7 +5,7 @@ HYPRLAND_SOCKET="${XDG_RUNTIME_DIR}/hypr/${HYPRLAND_INSTANCE_SIGNATURE}/.socket2
 start() {
   pkill -x dunst
   pkill -x gjs
-  gjs -m "$HOME/.config/ags/app" &
+  "$HOME/.config/ags/app" &
 }
 
 monitor_added() {
