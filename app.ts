@@ -22,7 +22,6 @@ function getTargetMonitor(monitors: Array<Gdk.Monitor>) {
 
 app.start({
   css: compileScss(),
-  instanceName: "agsv3",
   requestHandler: requestHandler,
   main() {
     const targetMonitor = getTargetMonitor(app.get_monitors())

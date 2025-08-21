@@ -1,8 +1,9 @@
 import Gtk from "gi://Gtk?version=4.0"
 import Gdk from "gi://Gdk?version=4.0"
+import Pango from "gi://Pango?version=1.0"
 import { Astal } from "ags/gtk4"
 import app from "ags/gtk4/app"
-import { Accessor, createBinding, createState, For, With } from "ags"
+import { Accessor, createBinding, createState, For, With } from "gnim"
 import AstalBattery from "gi://AstalBattery?version=0.1"
 import AstalBluetooth from "gi://AstalBluetooth?version=0.1"
 import AstalHyprland from "gi://AstalHyprland?version=0.1"
@@ -107,6 +108,7 @@ function MediaModule() {
         <label
           class={createBinding(ps[0], "playbackStatus").as(s => s > 0 ? "paused" : "playing")}
           maxWidthChars={80}
+          ellipsize={Pango.EllipsizeMode.END}
           label={createBinding(ps[0], "metadata").as(() => getTitle(ps[0]))} />
       </button>
     ) : (<box />)
