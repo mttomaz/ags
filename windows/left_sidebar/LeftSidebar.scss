@@ -26,25 +26,6 @@ window.LeftSidebar {
     }
   }
 
-  .calendar_widget {
-    font-family: $font2;
-    font-weight: 600;
-    background-color: $bg2;
-    border-radius: 12px;
-    .not_incurrent {
-      color: grey;
-    }
-    .today {
-      font-weight: 900;
-      color: $bg2;
-      background-color: $accent;
-      border-radius: 12px;
-    }
-    .control {
-      background-color: inherit;
-    }
-  }
-
   .calendar {
     font-family: $font2;
     font-weight: 500;
@@ -59,7 +40,6 @@ window.LeftSidebar {
     color: $fg1;
     font-size: 16px;
 
-    // Dia selecionado
     &:selected {
       font-weight: 900;
       color: $bg2;
@@ -67,23 +47,20 @@ window.LeftSidebar {
       border-radius: 12px;
     }
 
-    // Mês e Ano
     &.header {
       font-weight: 900;
       color: #727169;
     }
 
-    // Botões para selecionar mês e ano
     &.button {
       color: #727169;
     }
 
-    // Dias da semana
     &.highlight {
       color: #9cabca;
       font-weight: 900;
     }
-    // Dias que não fazem parte do mês atual
+
     &:indeterminate {
       color: #727169;
       font-weight: 500;

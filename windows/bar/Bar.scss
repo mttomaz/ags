@@ -27,11 +27,14 @@ window.Bar {
     }
   }
 
-  .SysTray {
-    padding: 0 2px;
+  .Tray {
+    padding: 0 4px;
     button {
       background-color: transparent;
-      padding: 0px 3px;
+      padding: 0 4px;
+      &:hover {
+        background-color: rgba($fg1, 0.1);
+      }
     }
   }
 
@@ -48,8 +51,8 @@ window.Bar {
   }
 
   .Time,
-  .Network,
   .Memory,
+  .Network,
   .Weather,
   .Battery,
   .Bluetooth,

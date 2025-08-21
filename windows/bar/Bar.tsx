@@ -1,67 +1,95 @@
-import { App, Astal, Gdk, Gtk } from "astal/gtk3"
-import { Variable, bind } from "astal"
-import Battery from "gi://AstalBattery"
-import Bluetooth from "gi://AstalBluetooth"
-import Hyprland from "gi://AstalHyprland"
-import Mpris from "gi://AstalMpris"
-import Network from "gi://AstalNetwork"
-import Tray from "gi://AstalTray"
+import Gtk from "gi://Gtk?version=4.0"
+import Gdk from "gi://Gdk?version=4.0"
+import { Astal } from "ags/gtk4"
+import app from "ags/gtk4/app"
+import { Accessor, createBinding, createState, For, With } from "ags"
+import AstalBattery from "gi://AstalBattery?version=0.1"
+import AstalBluetooth from "gi://AstalBluetooth?version=0.1"
+import AstalHyprland from "gi://AstalHyprland?version=0.1"
+import AstalMpris from "gi://AstalMpris?version=0.1"
+import AstalNetwork from "gi://AstalNetwork?version=0.1"
+import AstalTray from "gi://AstalTray?version=0.1"
 import Time from "@widgets/Time/Time"
 import { getWeatherEmoji } from "@common/functions"
-import { memoryUsage, notificationsLength, showLeftSidebar, showRightSidebar, weatherReport } from "@common/vars"
+import { weatherReport, notificationsLength, memoryUsage, setShowLeftSidebar, showLeftSidebar, setShowRightSidebar, showRightSidebar } from "@common/vars"
 
-function SysTray() {
-  const tray = Tray.get_default()
+function TrayModule() {
+  const tray = AstalTray.get_default()
+  const items = createBinding(tray, "items")
 
-  return <box className="SysTray">
-    {bind(tray, "items").as(items => items.map(item => (
-      <menubutton
-        tooltipMarkup={bind(item, "tooltipMarkup")}
-        usePopover={false}
-        actionGroup={bind(item, "actionGroup").as(ag => ["dbusmenu", ag])}
-        menuModel={bind(item, "menuModel")}>
-        <icon gicon={bind(item, "gicon")} />
-      </menubutton>
-    )))}
-  </box>
+  const init = (btn: Gtk.MenuButton, item: AstalTray.TrayItem) => {
+    btn.menuModel = item.menuModel
+    btn.insert_action_group("dbusmenu", item.actionGroup)
+    item.connect("notify::action-group", () => {
+      btn.insert_action_group("dbusmenu", item.actionGroup)
+    })
+  }
+
+  return (
+    <box class="Tray">
+      <For each={items}>
+        {(item) => (
+          <menubutton $={(self) => init(self, item)}>
+            <image gicon={createBinding(item, "gicon")} />
+          </menubutton>
+        )}
+      </For>
+    </box>
+  )
 }
 
 function NetworkModule() {
-  const network = Network.get_default()
-  const networkTypes = { "1": "wired", "2": "wifi" }
+  const network = AstalNetwork.get_default()
+  const primary = createBinding(network, "primary")
 
-  return bind(network, "primary").as(p => {
-    const dev = network[networkTypes[p]]
-    if (dev) {
-      return <icon
-        className="Network"
-        icon={bind(dev, "iconName")} />
-    }
-    return <box />
-  })
+  return (
+    <box
+      class="Network"
+      visible={primary((p) => p !== AstalNetwork.Primary.UNKNOWN)}
+    >
+      <With value={primary}>
+        {(primary) =>
+          primary === AstalNetwork.Primary.WIFI ? (
+            <image
+              class="Icon"
+              tooltipText={createBinding(network.wifi, "ssid")}
+              iconName={createBinding(network.wifi, "iconName")}
+            />
+          ) : (
+            primary === AstalNetwork.Primary.WIRED && (
+              <image
+                class="Icon"
+                iconName={createBinding(network.wired, "iconName")}
+              />
+            )
+          )
+        }
+      </With>
+    </box>
+  )
 }
 
 function BluetoothModule() {
-  const bluetooth = Bluetooth.get_default()
+  const bluetooth = AstalBluetooth.get_default()
 
   return <revealer
     transitionType={Gtk.RevealerTransitionType.SLIDE_LEFT}
-    revealChild={bind(bluetooth, "is_connected")}>
-    <label className="Bluetooth" label="󰂱" />
+    revealChild={createBinding(bluetooth, "is_connected")}>
+    <label class="Bluetooth" label="󰂱" />
   </revealer>
 }
 
-function BatteryLevel() {
-  const bat = Battery.get_default()
+function BatteryModule() {
+  const bat = AstalBattery.get_default()
 
-  return <box className="Battery"
-    visible={bind(bat, "isPresent")}>
-    <label label={bind(bat, "percentage").as(p => `${Math.floor(p * 100)}%`)} />
-    <icon icon={bind(bat, "batteryIconName")} />
+  return <box class="Battery"
+    visible={createBinding(bat, "isPresent")}>
+    <label label={createBinding(bat, "percentage").as(p => `${Math.floor(p * 100)}%`)} />
+    <image iconName={createBinding(bat, "batteryIconName")} />
   </box>
 }
 
-function getTitle(player: Mpris.Player): string {
+function getTitle(player: AstalMpris.Player): string {
   return player.artist
     ? `${player.artist}: ${player.title}`
     : player.album
@@ -69,121 +97,152 @@ function getTitle(player: Mpris.Player): string {
       : `${player.title}`
 }
 
-function Media() {
-  const mpris = Mpris.get_default()
+function MediaModule() {
+  const mpris = AstalMpris.get_default()
 
-  return bind(mpris, "players").as(ps => ps[0] ? (
-    <button className="Media"
-      onClick={() => ps[0].play_pause()}>
-      <label
-        className={bind(ps[0], "playbackStatus").as(s => s > 0 ? "paused" : "playing")}
-        truncate
-        maxWidthChars={80}
-        label={bind(ps[0], "metadata").as(() => getTitle(ps[0]))} />
-    </button>
-  ) : (<box />))
+  return <With value={createBinding(mpris, "players")}>
+    {(ps: Array<AstalMpris.Player>) => ps[0] ? (
+      <button class="Media"
+        onClicked={() => ps[0].play_pause()}>
+        <label
+          class={createBinding(ps[0], "playbackStatus").as(s => s > 0 ? "paused" : "playing")}
+          maxWidthChars={80}
+          label={createBinding(ps[0], "metadata").as(() => getTitle(ps[0]))} />
+      </button>
+    ) : (<box />)
+    }
+  </With>
 }
 
 function Workspaces() {
-  const hypr = Hyprland.get_default()
+  const hypr = AstalHyprland.get_default()
+  const [wsList, setWsList] = createState(hypr.get_workspaces())
 
-  return <box className="Workspaces">
-    {bind(hypr, "workspaces").as(wss => wss
-      .filter(ws => !(ws.id >= -99 && ws.id <= -2)) // filter out special workspaces
-      .sort((a, b) => a.id - b.id)
-      .map(ws => (
+  // INFO: https://github.com/Aylur/astal/issues/284
+  hypr.connect("workspace-added", (_, ws) => {
+    setWsList((w) => [...w, ws])
+  })
+  hypr.connect("workspace-removed", (_, wsId) => {
+    setWsList((w) => w.filter((w) => w.id != wsId))
+  })
+
+  const sorted = (arr: Array<AstalHyprland.Workspace>) => {
+    return arr.filter(ws => !(ws.id >= -99 && ws.id <= -2)).sort((a, b) => a.id - b.id)
+  }
+
+  return <box class="Workspaces">
+    <For each={wsList(sorted)}>
+      {(ws: AstalHyprland.Workspace) => (
         <button
-          className={bind(hypr, "focusedWorkspace").as(fw =>
-            ws === fw ? "focused" : "")}
-          onClicked={() => ws.focus()}>
+          class={createBinding(hypr, "focusedWorkspace").as(fw => ws === fw ? "focused" : "")}
+          onClicked={() => ws.focus()}
+        >
           {ws.id}
         </button>
-      ))
-    )}
+      )}
+    </For>
   </box>
 }
 
 function Weather() {
-  const visible = Variable<boolean>(false)
-  return <revealer
-    transitionType={Gtk.RevealerTransitionType.SLIDE_RIGHT}
-    revealChild={visible()}>
-    {bind(weatherReport).as((data) => {
-      if (data) {
-        const condition = data.weather.current_condition[0]
-        const temp = condition.temp_C
-        const emoji = getWeatherEmoji(condition.weatherDesc[0].value)
-        visible.set(true)
-        return <label className="Weather" label={`${temp}°C ${emoji}`} />
-      }
-      return <box />
-    })}
-  </revealer>
+  const [visible, setVisible] = createState(true)
+  return (
+    <revealer
+      transitionType={Gtk.RevealerTransitionType.SLIDE_RIGHT}
+      revealChild={visible}
+    >
+      <With value={weatherReport}>
+        {(value) => {
+          if (value?.weather) {
+            const condition = value.weather.current_condition[0]
+            const temp = condition.temp_C
+            const emoji = getWeatherEmoji(condition.weatherDesc[0].value)
+            setVisible(true)
+            return <label class="Weather" label={`${temp}°C ${emoji}`} />
+          }
+          return <box />
+        }}
+      </With>
+    </revealer>
+  )
 }
 
 function NotificationBell() {
   return <revealer
     transitionType={Gtk.RevealerTransitionType.SLIDE_LEFT}
-    revealChild={bind(notificationsLength).as(l => l > 1)}>
-    <label className="NotificationBell" label="󱅫" />
+    revealChild={notificationsLength.as((l) => l > 1)}>
+    <label class="NotificationBell" label="󱅫" />
   </revealer>
 }
 
 function Memory() {
-  return <label
-    className="Memory"
-    onDestroy={() => memoryUsage.drop()}
-    label={memoryUsage()}
-  />
+  return <With value={memoryUsage}>
+    {(memoryUsage) =>
+      <label
+        class="Memory"
+        label={memoryUsage}
+      />
+    }
+  </With>
 }
 
-export default function Bar(monitor: Gdk.Monitor, visible: Variable<boolean>) {
+export default function Bar(monitor: Gdk.Monitor, visible: Accessor<boolean>) {
   const { TOP, LEFT, RIGHT } = Astal.WindowAnchor
 
-  return <window
-    className="Bar"
-    namespace="bar"
-    gdkmonitor={monitor}
-    exclusivity={Astal.Exclusivity.EXCLUSIVE}
-    application={App}
-    visible={visible()}
-    layer={Astal.Layer.TOP}
-    anchor={TOP | LEFT | RIGHT}>
-    <centerbox>
-      <box
-        hexpand
-        halign={Gtk.Align.START}
-        css="margin-left: 4px">
-        <button
-          className="TimeAndWeather"
-          onClicked={() => showLeftSidebar.set(!showLeftSidebar.get())}
-        >
-          <box>
-            <Time />
-            <Weather />
-          </box>
-        </button>
-        <Workspaces />
-      </box>
-      <Media />
-      <box
-        hexpand
-        halign={Gtk.Align.END}
-        css="margin-right: 4px">
-        <SysTray />
-        <button
-          className="TimeAndWeather"
-          onClicked={() => showRightSidebar.set(!showRightSidebar.get())}
-        >
-          <box>
-            <BatteryLevel />
-            <NetworkModule />
-            <BluetoothModule />
-            <NotificationBell />
-            <Memory />
-          </box>
-        </button>
-      </box>
-    </centerbox>
-  </window>
+  return (
+    <window
+      class="Bar"
+      namespace="bar"
+      gdkmonitor={monitor}
+      exclusivity={Astal.Exclusivity.EXCLUSIVE}
+      application={app}
+      visible={visible}
+      layer={Astal.Layer.TOP}
+      anchor={TOP | LEFT | RIGHT}
+    >
+      <centerbox>
+        <box
+          hexpand
+          $type="start"
+          halign={Gtk.Align.START}
+          css="margin-left: 4px">
+          <button
+            class="TimeAndWeather"
+            onClicked={() => setShowLeftSidebar(!showLeftSidebar.get())}
+          >
+            <box>
+              <Time />
+              <Weather />
+            </box>
+          </button>
+          <Workspaces />
+        </box>
+        <box
+          hexpand
+          halign={Gtk.Align.CENTER}
+          $type="center">
+          <MediaModule />
+        </box>
+        <box
+          hexpand
+          $type="end"
+          halign={Gtk.Align.END}
+          css="margin-right: 4px">
+          <TrayModule />
+          <button
+            class="TimeAndWeather"
+            onClicked={() => setShowRightSidebar(!showRightSidebar.get())}
+          >
+            <box>
+              <BatteryModule />
+              <NetworkModule />
+              <BluetoothModule />
+              <NotificationBell />
+              <Memory />
+            </box>
+          </button>
+        </box>
+      </centerbox>
+    </window>
+  )
 }

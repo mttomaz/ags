@@ -1,79 +1,82 @@
-import { App, Astal, Gdk, Gtk } from "astal/gtk3"
-import { timeout } from "astal/time"
-import Variable from "astal/variable"
-import Wp from "gi://AstalWp"
-import Brightness from "@utils/brightness"
-import { spotifyPlayer } from "@common/vars"
+import Gtk from "gi://Gtk?version=4.0"
+import Gdk from "gi://Gdk?version=4.0"
+import { Astal } from "ags/gtk4"
+import app from "ags/gtk4/app"
+import { Accessor, createState } from "ags"
+import { timeout } from "ags/time"
+import AstalWp from "gi://AstalWp?version=0.1"
+import Brightness from "@utils/Brightness"
 
 
-function OnScreenProgress({ visible }: { visible: Variable<boolean> }) {
+export default function OSD(monitor: Gdk.Monitor) {
   const brightness = Brightness.get_default()
-  const speaker = Wp.get_default()!.get_default_speaker()
+  const wp = AstalWp.get_default()!
+  const speaker = wp.get_default_speaker()
 
-  const iconName = Variable("")
-  const value = Variable(0)
+  const [visible, setVisible] = createState(false)
+  const [icon, setIcon] = createState("")
+  const [value, setValue] = createState(0)
 
   let count = 0
   function show(v: number, icon: string) {
-    visible.set(true)
-    value.set(v)
-    iconName.set(icon)
+    setVisible(true)
+    setValue(v)
+    setIcon(icon)
     count++
     timeout(2000, () => {
       count--
-      if (count === 0) visible.set(false)
+      if (count === 0) setVisible(false)
     })
   }
 
   return (
-    <box
-      setup={(self) => {
-        self.hook(brightness, "notify::screen", () =>
-          show(brightness.screen, "display-brightness-symbolic"),
-        )
-
-        if (speaker) {
-          self.hook(speaker, "notify::volume", () =>
-            show(speaker.volume, speaker.volumeIcon),
-          )
-        }
-
-        self.hook(spotifyPlayer, "notify::volume", () =>
-          show(spotifyPlayer.volume, "spotify")
-        )
-      }}>
-      <box vertical className="OSD">
-        <icon icon={iconName()}/>
-        <levelbar
-          valign={Gtk.Align.CENTER}
-          heightRequest={100}
-          widthRequest={8}
-          vertical
-          inverted
-          value={value()}
-        />
-        <label label={value(v => `${Math.floor(v * 100)}%`)} />
-      </box>
-    </box>
-  )
-}
-
-export default function OSD(monitor: Gdk.Monitor) {
-  const visible = Variable(false)
-
-  return (
     <window
       gdkmonitor={monitor}
-      className="OSD"
+      class="OSD"
       namespace="osd"
-      application={App}
-      visible={visible()}
+      visible={visible}
+      application={app}
       layer={Astal.Layer.OVERLAY}
       anchor={Astal.WindowAnchor.RIGHT}
     >
-      <eventbox onClick={() => visible.set(false)}>
-        <OnScreenProgress visible={visible} />
-      </eventbox>
+      <box
+        $={() => {
+          if (brightness) {
+            brightness.connect("notify::screen", () =>
+              show(brightness.screen, "display-brightness-symbolic"),
+            )
+          }
+
+          if (speaker) {
+            speaker.connect("notify::volume", () =>
+              show(speaker.volume, speaker.volumeIcon),
+            )
+          }
+
+          wp.connect("node-added", () => {
+            wp.get_nodes()?.forEach((node) => {
+              if (node.name === "Spotify") {
+                node.connect("notify::volume", () =>
+                  show(node.volume, "spotify")
+                )
+              }
+            })
+          })
+
+        }}>
+        <box orientation={Gtk.Orientation.VERTICAL} class="OSD">
+          <image iconName={icon} />
+          <levelbar
+            valign={Gtk.Align.CENTER}
+            heightRequest={100}
+            widthRequest={8}
+            orientation={Gtk.Orientation.VERTICAL}
+            inverted
+            value={value}
+          />
+          <label label={value(v => `${Math.floor(v * 100)}%`)} />
+        </box>
+      </box>
     </window>
   )
 }

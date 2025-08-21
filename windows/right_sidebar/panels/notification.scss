@@ -1,0 +1,56 @@
+@use "../../../theme" as *;
+
+.NotificationPanel {
+  margin-top: 16px;
+  border-radius: 16px;
+  background-color: $bg2;
+  transition-duration: 500ms;
+  box-shadow: 0px 0px 5px rgba(black, 0.2);
+  viewport {
+    border: none;
+    background-color: $bg2;
+    border-radius: 16px;
+    padding: 6px;
+  }
+  scrolledwindow {
+    padding: 0px;
+    border-radius: 16px;
+  }
+  .Notification {
+    margin: 0.5rem 0.5rem 0 0.5rem;
+    box-shadow: none;
+  }
+  .noNotifications {
+    color: rgba($fg1, 0.8);
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 48px;
+    .Icon {
+      font-size: 48px;
+    }
+  }
+  .Title {
+    font-family: $font2;
+    font-weight: 600;
+    font-size: 18px;
+    margin: 8px 0px 0px 16px;
+  }
+  .dismissAll {
+    color: $fg1;
+    font-family: $font2;
+    font-size: 14px;
+    background-color: $bg1;
+    border-radius: 10px;
+    margin: 8px 8px 0px 0px;
+    padding: 2px 8px;
+    transition-duration: 250ms;
+    &:hover {
+      color: $bg1;
+      background-color: $error;
+    }
+    &:focus {
+      outline: none;
+      box-shadow: none;
+    }
+  }
+}

@@ -1,0 +1,57 @@
+@use "../../../theme" as *;
+
+.SidebarBluetoothPanel {
+  background-color: $bg2;
+  border-radius: 16px;
+  padding: 4px 8px 8px 8px;
+  margin-top: 8px;
+  viewport {
+    border: none;
+  }
+  switch:checked {
+    background-color: $accent;
+    border: 2px solid transparent;
+  }
+  switch {
+    background-color: $bg1;
+    border: 2px solid $fg1;
+  }
+  .Title {
+    font-weight: 700;
+    font-size: 18px;
+    padding-left: 8px;
+  }
+  .Item {
+    margin-bottom: 8px;
+    button {
+      background-color: transparent;
+      padding: 4px 3px 4px 1px;
+      color: rgba($fg1, 0.8);
+    }
+    .icon {
+      padding-right: 8px;
+    }
+    .Battery,
+    .Status {
+      font-weight: 600;
+    }
+    .Name {
+      font-weight: 700;
+    }
+    .Status {
+      color: rgba($fg1, 0.8);
+    }
+  }
+  .ItemList {
+    background-color: $bg1;
+    border-radius: 16px;
+    padding: 8px;
+    margin-top: 4px;
+  }
+  .Discover {
+    padding: 0px 2px;
+    background-color: transparent;
+    margin-right: 8px;
+    font-size: 22px;
+  }
+}

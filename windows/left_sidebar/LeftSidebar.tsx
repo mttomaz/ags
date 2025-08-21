@@ -1,27 +1,37 @@
-import { App, Astal, Gdk, Gtk } from "astal/gtk3"
-import { bind, Variable } from "astal"
-import Calendar from "@widgets/Calendar/Calendar"
-import Time from "@widgets/Time/Time"
-import { getWeatherEmoji, getWeatherImage } from "@common/functions"
+import { Astal } from "ags/gtk4"
+import Gtk from "gi://Gtk?version=4.0"
+import Gdk from "gi://Gdk?version=4.0"
+import app from "ags/gtk4/app"
+import { Accessor, With } from "ags"
+import { getWeatherEmoji, getWeatherImage, pathToURI } from "@common/functions"
 import { currentDay, weatherReport } from "@common/vars"
+import Time from "@widgets/Time/Time"
 
 
 function TimeAndDate() {
   return (
     <box
-      className="TimeAndDate"
-      vertical
+      class="TimeAndDate"
+      orientation={Gtk.Orientation.VERTICAL}
     >
       <Time />
-      <label className="Today" label={currentDay().as(day => day.replace(/\^(\w)(\w*)/g, (_, first, rest) => first.toUpperCase() + rest.toLowerCase()))} />
+      <With value={currentDay}>
+        {(day) => (
+          <label
+            class="Today"
+            label={day.replace(/\^(\w)(\w*)/g, (_, first, rest) =>
+              first.toUpperCase() + rest.toLowerCase())
+            } />
+        )}
+      </With>
     </box>
   )
 }
 
 function CalendarModule() {
   return (
-    <box className="calendar" vertical>
-      {new Calendar({ hexpand: true, vexpand: true })}
+    <box class="calendar" orientation={Gtk.Orientation.VERTICAL}>
+      <Gtk.Calendar />
     </box>
   )
 }
@@ -43,93 +53,101 @@ function getUpcomingHours(hourly: any[]) {
 
 
 function WeatherSidebar() {
-  return bind(weatherReport).as((data) => {
-    if (!data) return <box />
+  return <box>
+    <With value={weatherReport}>
+      {(data) => {
+        if (!data) return <box />
 
-    const current = data.weather.current_condition[0]
-    const upcoming = getUpcomingHours(data.weather.weather[0].hourly)
-    const image = getWeatherImage(current.weatherDesc[0].value)
+        if (data?.weather) {
+          const current = data.weather.current_condition[0]
+          const upcoming = getUpcomingHours(data.weather.weather[0].hourly)
+          const image = getWeatherImage(current.weatherDesc[0].value)
+          const imagePath = pathToURI(`${SRC}/assets/weather/${image}`)
 
-    return <box
-      className="Weather"
-      vertical>
-      <box
-        className="Image"
-        css={`background-image: url('${SRC}/assets/weather/${image}')`}>
-        <box
-          className="Current">
-          <box vertical halign={Gtk.Align.START}>
-            <label
-              className="Icon"
-              xalign={0}
-              yalign={0}
-              vexpand
-              label={getWeatherEmoji(current.weatherDesc[0].value)} />
-            <label
-              className="Description"
-              xalign={0}
-              label={current.weatherDesc[0].value} />
-          </box>
-          <box hexpand />
-          <box vertical halign={Gtk.Align.END}>
-            <box vertical>
-              <label
-                className="Temp"
-                xalign={1}
-                yalign={0}
-                label={`${current.temp_C}°`} />
-              <label
-                className="FeelsLike"
-                xalign={1}
-                yalign={0}
-                vexpand
-                label={`Feels like: ${current.FeelsLikeC}°`} />
+          return <box
+            class="Weather"
+            orientation={Gtk.Orientation.VERTICAL}>
+            <box
+              class="Image"
+              css={`background-image: url('${imagePath}')`}>
+              <box
+                class="Current">
+                <box orientation={Gtk.Orientation.VERTICAL} halign={Gtk.Align.START}>
+                  <label
+                    class="Icon"
+                    xalign={0}
+                    yalign={0}
+                    vexpand
+                    label={getWeatherEmoji(current.weatherDesc[0].value)} />
+                  <label
+                    class="Description"
+                    xalign={0}
+                    label={current.weatherDesc[0].value} />
+                </box>
+                <box hexpand />
+                <box orientation={Gtk.Orientation.VERTICAL} halign={Gtk.Align.END}>
+                  <box orientation={Gtk.Orientation.VERTICAL}>
+                    <label
+                      class="Temp"
+                      xalign={1}
+                      yalign={0}
+                      label={`${current.temp_C}°`} />
+                    <label
+                      class="FeelsLike"
+                      xalign={1}
+                      yalign={0}
+                      vexpand
+                      label={`Feels like: ${current.FeelsLikeC}°`} />
+                  </box>
+                  <box
+                    class="Info"
+                    orientation={Gtk.Orientation.VERTICAL}>
+                    <label class="Wind" xalign={1} label={`${current.windspeedKmph}km 💨`} />
+                    <label class="Humidity" xalign={1} label={`${current.humidity}% 💧`} />
+                    <label class="Precipitation" xalign={1} label={`${current.precipMM}mm ☔`} />
+                  </box>
+                </box>
+              </box>
             </box>
             <box
-              className="Info"
-              vertical>
-              <label className="Wind" xalign={1} label={`${current.windspeedKmph}km 💨`} />
-              <label className="Humidity" xalign={1} label={`${current.humidity}% 💧`} />
-              <label className="Precipitation" xalign={1} label={`${current.precipMM}mm ☔`} />
+              class="HourlyForecast"
+              homogeneous>
+              {upcoming.map(h => (
+                <box orientation={1} hexpand={true} class="HourlyItem" spacing={4}>
+                  <label label={`${h.hour.toString().padStart(2, "0")}:00`} class="Hour" />
+                  <label
+                    label={getWeatherEmoji(h.weatherDesc[0].value)}
+                    class="Icon"
+                    tooltipText={`${h.weatherDesc[0].value}, ☔: ${h.precipMM}mm`}
+                  />
+                  <label label={`${h.tempC}°`} class="SmallTemp" />
+                </box>
+              ))}
             </box>
           </box>
-        </box>
-      </box>
-      <box
-        className="HourlyForecast"
-        homogeneous>
-        {upcoming.map(h => (
-          <box orientation={1} hexpand={true} className="HourlyItem" spacing={4}>
-            <label label={`${h.hour.toString().padStart(2, "0")}:00`} className="Hour" />
-            <label
-              label={getWeatherEmoji(h.weatherDesc[0].value)}
-              className="Icon"
-              tooltipText={`${h.weatherDesc[0].value}, ☔: ${h.precipMM}mm`}
-            />
-            <label label={`${h.tempC}°`} className="SmallTemp" />
-          </box>
-        ))}
-      </box>
-    </box>
-  })
+        }
+      }}
+    </With>
+  </box>
 }
 
-export default function LeftSidebar(monitor: Gdk.Monitor, visible: Variable<boolean>) {
+
+export default function LeftSidebar(monitor: Gdk.Monitor, visible: Accessor<boolean>) {
   const { LEFT, TOP } = Astal.WindowAnchor
 
   return <window
-    className="LeftSidebar"
+    class="LeftSidebar"
     namespace="leftsidebar"
     gdkmonitor={monitor}
     exclusivity={Astal.Exclusivity.EXCLUSIVE}
-    application={App}
+    application={app}
     layer={Astal.Layer.TOP}
-    visible={visible()}
+    visible={visible}
     anchor={TOP | LEFT}>
     <box
       hexpand
-      vertical
-      className="sidebar"
+      orientation={Gtk.Orientation.VERTICAL}
+      class="sidebar"
     >
       <TimeAndDate />
       <CalendarModule />

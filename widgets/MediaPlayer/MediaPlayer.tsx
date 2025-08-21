@@ -1,8 +1,8 @@
-import { bind } from "astal"
-import { Gtk } from "astal/gtk3"
-import Variable from "astal/variable"
-import Mpris from "gi://AstalMpris"
-
+import { pathToURI } from "@common/functions"
+import AstalMpris from "gi://AstalMpris?version=0.1"
+import Gtk from "gi://Gtk?version=4.0"
+import Pango from "gi://Pango?version=1.0"
+import { Accessor, createBinding, createState } from "gnim"
 
 function lengthStr(length: number) {
   const min = Math.floor(length / 60)
@@ -11,33 +11,38 @@ function lengthStr(length: number) {
   return `${min}:${sec0}${sec}`
 }
 
-export default function MediaPlayer(player: Mpris.Player) {
-  const showPosition = Variable<boolean>(false)
+export default function MediaPlayer(player: AstalMpris.Player) {
+  const [showPosition, setShowPosition] = createState(false)
+  const [stop, setStop] = createState(false)
 
-  const coverArt = bind(player, "coverArt").as(c =>
-    `background-image: url('${c}')`)
+  const defaultCover = `${SRC}/assets/speaker.jpg`
+  const coverArt = createBinding(player, "coverArt").as(c =>
+    `background-image: url('${pathToURI(c || defaultCover)}')`)
 
-  const playIcon = bind(player, "playbackStatus").as(s =>
+  const playIcon = createBinding(player, "playbackStatus").as(s =>
     s === 0 ? "󰏤" : "󰐊")
 
-  const position = bind(player, "position").as(p => player.length > 0
+  const position = createBinding(player, "position").as(p => player.length > 0
     ? p / player.length : 0)
 
+  const metadata = createBinding(player, "metadata")
+
   function ArtistTitle() {
-    return <box vertical hexpand>
+    return <box orientation={Gtk.Orientation.VERTICAL} hexpand>
       <label
-        className="Title"
-        truncate
-        maxWidthChars={35}
+        class="Title"
+        ellipsize={Pango.EllipsizeMode.END}
+        maxWidthChars={28}
         halign={Gtk.Align.START}
         valign={Gtk.Align.START}
-        label={bind(player, "metadata").as(() => `${player.title}`)} />
+        tooltipText={metadata(() => `${player.title}`)}
+        label={metadata(() => `${player.title}`)} />
       <label
-        className="Artist"
+        class="Artist"
         vexpand
         halign={Gtk.Align.START}
         valign={Gtk.Align.START}
-        label={bind(player, "metadata").as(() => {
+        label={metadata(() => {
           if (player.artist) return `${player.artist}`
           if (player.album) return `${player.album}`
           return ""
@@ -47,25 +52,33 @@ export default function MediaPlayer(player: Mpris.Player) {
 
   function Position() {
     return <revealer
-      revealChild={bind(showPosition)}
+      revealChild={showPosition}
       transitionType={Gtk.RevealerTransitionType.SLIDE_DOWN}>
-      <box vertical className="position">
+      <box orientation={Gtk.Orientation.VERTICAL} class="position">
         <box>
           <label
             halign={Gtk.Align.START}
-            visible={bind(player, "length").as(l => l > 0)}
-            label={bind(player, "position").as(lengthStr)}
+            visible={createBinding(player, "length").as(l => l > 0)}
+            label={createBinding(player, "position").as(lengthStr)}
           />
           <label
             hexpand
             halign={Gtk.Align.START}
-            visible={bind(player, "length").as(l => l > 0)}
-            label={bind(player, "length").as(l => l > 0 ? ` - ${lengthStr(l)}` : " - 0:00")}
+            visible={createBinding(player, "length").as(l => l > 0)}
+            label={createBinding(player, "length").as(l => l > 0 ? ` - ${lengthStr(l)}` : " - 0:00")}
+          />
+          <button
+            class="Timer"
+            onClicked={() => setStop(!stop.get())}
+            css={stop(stop => stop ? "color: #c34043;" : "color: #dcd7ba;")}
+            label={"󱎫"}
           />
         </box>
         <slider
-          visible={bind(player, "length").as(l => l > 0)}
-          onDragged={({ value }) => player.position = value * player.length}
+          visible={createBinding(player, "length").as(l => l > 0)}
+          onChangeValue={({ value }) => {
+            player.position = value * player.length
+          }}
           value={position}
         />
       </box>
@@ -74,16 +87,16 @@ export default function MediaPlayer(player: Mpris.Player) {
 
   function Actions() {
     return <box
-      className="Actions"
+      class="Actions"
       homogeneous
-      vertical>
+      orientation={Gtk.Orientation.VERTICAL}>
       <button
         label="󰒮"
         onClicked={() => player.previous()}
       />
       <button
         label={playIcon}
-        onClick={() => player.play_pause()}
+        onClicked={() => player.play_pause()}
       />
       <button
         label="󰒭"
@@ -92,23 +105,36 @@ export default function MediaPlayer(player: Mpris.Player) {
     </box>
   }
 
-  return <eventbox
-    onHover={() => showPosition.set(true)}
-    onHoverLost={() => showPosition.set(false)}>
-    <box className="MediaPlayer" >
+
+  return <box
+    class="MediaPlayer"
+    name={player.entry}
+    $type="named"
+    $={() => createBinding(player, "artUrl").subscribe(() => {
+      if (stop.get()) {
+        player.stop()
+        setStop(false)
+      }
+    })}
+  >
+    <Gtk.EventControllerMotion
+      $={(self) => {
+        self.connect("enter", () => setShowPosition(true))
+        self.connect("leave", () => setShowPosition(false))
+      }}
+    />
+    <box
+      class="Cover"
+      hexpand
+      widthRequest={300}
+      css={coverArt}>
       <box
-        className="Cover"
-        hexpand
-        widthRequest={300}
-        css={coverArt}>
-        <box
-          className="Description"
-          vertical>
-          <ArtistTitle />
-          <Position />
-        </box>
+        class="Description"
+        orientation={Gtk.Orientation.VERTICAL}>
+        <ArtistTitle />
+        <Position />
       </box>
-      <Actions />
     </box>
-  </eventbox>
+    <Actions />
+  </box>
 }

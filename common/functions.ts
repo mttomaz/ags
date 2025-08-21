@@ -1,7 +1,22 @@
-import { Astal } from "astal/gtk3"
+import { Gdk, Gtk } from "ags/gtk4"
+import GLib from "gi://GLib?version=2.0";
 
-export const isIcon = (icon: string) =>
-  !!Astal.Icon.lookup_icon(icon)
+export function isIcon(icon?: string | null) {
+  const iconTheme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default()!)
+  return icon && iconTheme.has_icon(icon)
+}
+
+export function pathToURI(path: string): string {
+    switch(true) {
+        case (/^[/]/).test(path):
+            return `file://${path}`;
+
+        case (/^[~]/).test(path):
+        case (/^file:\/\/[~]/i).test(path):
+            return `file://${GLib.get_home_dir()}/${path.replace(/^(file\:\/\/|[~]|file\:\/\[~])/i, "")}`;
+    }
+    return path;
+}
 
 export function getWeatherEmoji(desc: string): string {
   desc = desc.toLowerCase()
@@ -32,7 +47,7 @@ export function getWeatherImage(desc: string): string {
   return "other.png"
 }
 
-export function getWifiIcon(icon) {
+export function getWifiIcon(icon: string): string {
   if (icon.includes("offline")) return "󰤮"
   if (icon.includes("no-route")) return "󰤭"
   if (icon.includes("connected")) return "󰤫"

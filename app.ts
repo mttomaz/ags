@@ -1,15 +1,14 @@
-#!/usr/bin/gjs -m
-import { compileScss } from "@common/cssHotReload"
-import { doNotDisturb, showBar, showCrosshair, showLauncher, showLeftSidebar, showRightSidebar } from "@common/vars"
+import app from "ags/gtk4/app"
 import Bar from "@windows/bar/Bar"
-import Crosshair from "@windows/crosshair/Crosshair"
-import Launcher from "@windows/launcher/Launcher"
-import LeftSidebar from "@windows/left_sidebar/LeftSidebar"
+import Gdk from "gi://Gdk?version=4.0"
+import requestHandler from "./requestHandler"
+import { showBar, showCrosshair, showLeftSidebar, showRightSidebar } from "@common/vars"
+import { compileScss } from "@common/cssHotReload"
 import NotificationPopups from "@windows/notification_popups/NotificationPopups"
+import Crosshair from "@windows/crosshair/Crosshair"
+import LeftSidebar from "@windows/left_sidebar/LeftSidebar"
 import OSD from "@windows/osd/OSD"
 import RightSidebar from "@windows/right_sidebar/RightSidebar"
-import { App, Gdk } from "astal/gtk3"
-import requestHandler from "./requestHandler"
 
 function getTargetMonitor(monitors: Array<Gdk.Monitor>) {
   const notebookModel = "0x9051"
@@ -21,20 +20,18 @@ function getTargetMonitor(monitors: Array<Gdk.Monitor>) {
   return notebookMonitor || pcMonitor || monitors[0]
 }
 
-App.start({
+app.start({
   css: compileScss(),
+  instanceName: "agsv3",
   requestHandler: requestHandler,
   main() {
-    const monitors = App.get_monitors()
-    const targetMonitor = getTargetMonitor(monitors)
-
+    const targetMonitor = getTargetMonitor(app.get_monitors())
     Bar(targetMonitor, showBar)
     LeftSidebar(targetMonitor, showLeftSidebar)
     RightSidebar(targetMonitor, showRightSidebar)
-    Crosshair(targetMonitor, showCrosshair)
     OSD(targetMonitor)
-    NotificationPopups(targetMonitor, doNotDisturb)
-    Launcher(targetMonitor, showLauncher)
+    NotificationPopups(targetMonitor)
+    Crosshair(targetMonitor, showCrosshair)
 
     print(`\nAstal Windows applied on monitor: ${targetMonitor.model}`)
   },
