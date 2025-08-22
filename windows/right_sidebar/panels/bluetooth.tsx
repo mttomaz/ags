@@ -1,21 +1,40 @@
 import Gtk from "gi://Gtk?version=4.0";
-import { createBinding, createComputed, For } from "ags";
+import { createBinding, createComputed, createState, For } from "gnim";
 import { execAsync } from "ags/process";
 import AstalBluetooth from "gi://AstalBluetooth?version=0.1";
 
 
 export default function BluetoothPanel() {
   const bluetooth = AstalBluetooth.get_default()
-  const bluetoothDevices = createBinding(bluetooth, "devices")
+  const devices = createBinding(bluetooth, "devices")
+  const [pairedDevices, setPairedDevices] = createState(
+    devices.get().filter((a) => a.paired))
+  const [connectedDevices, setConnectedDevices] = createState(
+    devices.get().filter((a) => a.connected))
+
+  const sortedDevices = createComputed([devices, pairedDevices, connectedDevices],
+    (devs, _, __) => {
+      devs.forEach((dev) => {
+        dev.connect("notify::paired", () => {
+          setPairedDevices(devices.get().filter((a) => a.paired))
+        })
+        dev.connect("notify::connected", () => {
+          setConnectedDevices(devices.get().filter((a) => a.connected))
+        })
+      })
+      return devs.sort((_, b) => Number(b.paired))
+        .sort((_, b) => Number(b.connected))
+    })
+
   const adapter = bluetooth.adapter
 
   function listItem(device: AstalBluetooth.Device) {
     const devConn = createBinding(device, "connected")
-    if (device.name === null) return <box/>
+    if (device.name === null) return <box />
     const visibleBinding = createComputed([devConn, createBinding(device, "paired")],
-    (conn, paired) => conn || paired)
-    const battery = createBinding(device, "batteryPercentage").as(p =>
-      p > 0 ? ` (${Math.floor(p * 100)}%)` : "")
+      (conn, paired) => conn || paired)
+    const battery = createComputed([devConn, createBinding(device, "batteryPercentage")],
+      (c, p) => c && p > 0 ? ` (${Math.floor(p * 100)}%)` : "")
 
     return <box class="Item">
       <box>
@@ -35,6 +54,11 @@ export default function BluetoothPanel() {
       </box>
       <box hexpand />
       <box class="Actions">
+        <button
+          label=""
+          visible={createBinding(device, "paired").as((p) => !p)}
+          onClicked={() => device.pair()}
+        />
         <button
           label="󱘖"
           onClicked={() => {
@@ -63,7 +87,7 @@ export default function BluetoothPanel() {
         class="Discover"
         css={createBinding(adapter, "discovering").as(disc =>
           disc ? "color: #7e9cd8;"
-               : "color: #c8c093;"
+            : "color: #c8c093;"
         )}
         label="󰓦"
         tooltipText={createBinding(adapter, "discovering").as(disc => disc ? "Discovering" : "Discover")}
@@ -86,7 +110,7 @@ export default function BluetoothPanel() {
       class="ItemList"
     >
       <box orientation={Gtk.Orientation.VERTICAL}>
-        <For each={bluetoothDevices}>
+        <For each={sortedDevices}>
           {(dev) => listItem(dev)}
         </For>
       </box>

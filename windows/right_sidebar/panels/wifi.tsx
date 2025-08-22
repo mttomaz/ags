@@ -1,5 +1,5 @@
 import Gtk from "gi://Gtk?version=4.0"
-import { createBinding, For} from "ags"
+import { createBinding, createComputed, For } from "gnim"
 import { execAsync } from "ags/process"
 import AstalNetwork from "gi://AstalNetwork?version=0.1"
 
@@ -7,8 +7,10 @@ import AstalNetwork from "gi://AstalNetwork?version=0.1"
 export default function WifiPanel() {
   const network = AstalNetwork.get_default()
   const wifi = network.wifi
-  const aps = createBinding(wifi, "accessPoints").as((aps) =>
-    aps.sort((a, b) => b.strength - a.strength))
+  const aap = createBinding(wifi, "activeAccessPoint")
+  const aps = createComputed([createBinding(wifi, "accessPoints"), aap], (aps, aap) =>
+    aps.sort((a, b) => b.strength - a.strength)
+      .sort((_, b) => Number(aap === b)))
 
   function itemList(ap: AstalNetwork.AccessPoint) {
     if (ap.ssid === null) return <box />
@@ -17,7 +19,7 @@ export default function WifiPanel() {
       <box orientation={Gtk.Orientation.VERTICAL} valign={Gtk.Align.CENTER}>
         <label label={ap.ssid} class="ssid" halign={Gtk.Align.START} />
         <label
-          visible={createBinding(wifi, "activeAccessPoint").as((aap) => aap === ap)}
+          visible={aap((aap) => aap === ap)}
           halign={Gtk.Align.START}
           label="Connected"
           class="status" />

@@ -133,8 +133,9 @@ function BluetoothModule() {
       if (device.connected) {
         const icon = device.icon
         const name = device.name
-        const status = createBinding(device, "batteryPercentage").as(p =>
-          p > 0 ? `${Math.floor(p * 100)}%` : enabled((enabled) => enabled ? "on" : "off"))
+        const battery = createBinding(device, "batteryPercentage")
+        const status = createComputed([enabled, battery], (e, p) =>
+          e ? p > 0 ? `${Math.floor(p * 100)}%` : "on" : "off" )
         return { icon, name, status }
       }
     }
@@ -152,7 +153,7 @@ function BluetoothModule() {
       <With value={connected}>
         {() => {
           const { icon, name, status } = getConnectedDevice(powered)
-          return sidebarButton(icon, name, status.as((s) => s.toString()), false)
+          return sidebarButton(icon, name, status, false)
         }}
       </With>
     </button>
