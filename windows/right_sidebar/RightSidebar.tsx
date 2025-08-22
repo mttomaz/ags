@@ -2,7 +2,7 @@ import Gtk from "gi://Gtk?version=4.0"
 import Gdk from "gi://Gdk?version=4.0"
 import { Astal } from "ags/gtk4"
 import app from "ags/gtk4/app"
-import { Accessor, createBinding, createState, For, With } from "ags"
+import { Accessor, createBinding, createComputed, createState, For, With } from "ags"
 import { exec, execAsync } from "ags/process"
 import AstalNetwork from "gi://AstalNetwork?version=0.1"
 import AstalBluetooth from "gi://AstalBluetooth?version=0.1"
@@ -105,7 +105,9 @@ function WifiModule() {
       <With value={wifi}>
         {(wifi) => {
           const icon = createBinding(wifi, "iconName")
-          const name = createBinding(wifi, "ssid").as((ssid) => ssid || "Wifi")
+          const name = createComputed([wifiEnabled, createBinding(wifi, "ssid")],
+            (enabled, ssid) => enabled ? ssid || "Wifi" : "Wifi"
+          )
           const status = wifiEnabled.as((enabled) => enabled ? "on" : "off")
           return (
             <button
