@@ -1,5 +1,5 @@
 import Gtk from "gi://Gtk?version=4.0";
-import { createBinding, createComputed, createState, For } from "gnim";
+import { createBinding, createComputed, For } from "gnim";
 import { execAsync } from "ags/process";
 import AstalBluetooth from "gi://AstalBluetooth?version=0.1";
 
@@ -7,24 +7,11 @@ import AstalBluetooth from "gi://AstalBluetooth?version=0.1";
 export default function BluetoothPanel() {
   const bluetooth = AstalBluetooth.get_default()
   const devices = createBinding(bluetooth, "devices")
-  const [pairedDevices, setPairedDevices] = createState(
-    devices.get().filter((a) => a.paired))
-  const [connectedDevices, setConnectedDevices] = createState(
-    devices.get().filter((a) => a.connected))
-
-  const sortedDevices = createComputed([devices, pairedDevices, connectedDevices],
-    (devs, _, __) => {
-      devs.forEach((dev) => {
-        dev.connect("notify::paired", () => {
-          setPairedDevices(devices.get().filter((a) => a.paired))
-        })
-        dev.connect("notify::connected", () => {
-          setConnectedDevices(devices.get().filter((a) => a.connected))
-        })
-      })
-      return devs.sort((_, b) => Number(b.paired))
-        .sort((_, b) => Number(b.connected))
-    })
+  const connected = createBinding(bluetooth, "isConnected")
+  const sortedDevices = createComputed([devices, connected],
+    (devs, _) => devs.sort((_, b) => Number(b.paired))
+      .sort((_, b) => Number(b.connected))
+  )
 
   const adapter = bluetooth.adapter
 

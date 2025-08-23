@@ -1,19 +1,15 @@
 import GLib from "gi://GLib"
 import { execAsync } from "ags/process"
-import Mpris from "gi://AstalMpris"
-import { createState } from "ags"
+import { createState } from "gnim"
 import { createPoll } from "ags/time"
 
-export const [ showBar, setShowBar ] = createState(true)
-export const [ showLeftSidebar, setShowLeftSidebar ] = createState(false)
-export const [ showRightSidebar, setShowRightSidebar ] = createState(false)
-export const [ showCrosshair, setShowCrosshair ] = createState(false)
-export const [ showLauncher, setShowLauncher ] = createState(false)
-export const [ doNotDisturb, setDoNotDisturb ] = createState(false)
-export const [ nightLightEnabled, setNightLightEnabled ] = createState(false)
-export const [ notificationsLength, setNotificationsLength ] = createState(0)
-export const [ sidebarPanel, setSidebarPanel ] = createState("main")
-export const spotifyPlayer = Mpris.Player.new("spotify")
+export const [showBar, setShowBar] = createState(true)
+export const [showLeftSidebar, setShowLeftSidebar] = createState(false)
+export const [showRightSidebar, setShowRightSidebar] = createState(false)
+export const [showCrosshair, setShowCrosshair] = createState(false)
+export const [doNotDisturb, setDoNotDisturb] = createState(false)
+export const [nightLightEnabled, setNightLightEnabled] = createState(false)
+export const [notificationsLength, setNotificationsLength] = createState(0)
 
 execAsync('pgrep -x hyprsunset')
   .then(() => setNightLightEnabled(true))
