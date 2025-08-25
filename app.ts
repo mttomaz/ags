@@ -9,6 +9,7 @@ import RightSidebar from "@windows/right_sidebar/RightSidebar"
 import OSD from "@windows/osd/OSD"
 import NotificationPopups from "@windows/notification_popups/NotificationPopups"
 import Crosshair from "@windows/crosshair/Crosshair"
+import Launcher from "@windows/launcher/Launcher"
 
 function getTargetMonitor(monitors: Array<Gdk.Monitor>) {
   const notebookModel = "0x9051"
@@ -27,6 +28,7 @@ app.start({
     const targetMonitor = getTargetMonitor(app.get_monitors())
 
     Bar(targetMonitor, vars.showBar)
+    Launcher(targetMonitor, vars.showLauncher)
     LeftSidebar(targetMonitor, vars.showLeftSidebar)
     RightSidebar(targetMonitor, vars.showRightSidebar)
     OSD(targetMonitor)
