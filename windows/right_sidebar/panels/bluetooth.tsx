@@ -1,6 +1,6 @@
 import Gtk from "gi://Gtk?version=4.0";
-import { createBinding, createComputed, For } from "gnim";
 import { execAsync } from "ags/process";
+import { createBinding, createComputed, For } from "gnim";
 import AstalBluetooth from "gi://AstalBluetooth?version=0.1";
 
 

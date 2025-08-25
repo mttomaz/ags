@@ -1,8 +1,8 @@
 import Gtk from "gi://Gtk?version=4.0"
+import { createBinding, With } from "gnim"
 import AstalNotifd from "gi://AstalNotifd?version=0.1"
-import { createBinding, With } from "ags"
-import Notification from "@widgets/Notification/Notification"
 import { setNotificationsLength } from "@common/vars"
+import Notification from "@widgets/Notification/Notification"
 
 
 export default function NotificationPanel() {

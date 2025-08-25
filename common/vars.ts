@@ -1,19 +1,20 @@
-import GLib from "gi://GLib"
+import GLib from "gi://GLib?version=2.0"
 import { execAsync } from "ags/process"
-import { createState } from "gnim"
 import { createPoll } from "ags/time"
+import { createState } from "gnim"
 
 export const [showBar, setShowBar] = createState(true)
+export const [showCrosshair, setShowCrosshair] = createState(false)
+export const [showLauncher, setShowLauncher] = createState(false)
 export const [showLeftSidebar, setShowLeftSidebar] = createState(false)
 export const [showRightSidebar, setShowRightSidebar] = createState(false)
-export const [showCrosshair, setShowCrosshair] = createState(false)
-export const [doNotDisturb, setDoNotDisturb] = createState(false)
-export const [nightLightEnabled, setNightLightEnabled] = createState(false)
 export const [notificationsLength, setNotificationsLength] = createState(0)
+export const [doNotDisturb, setDoNotDisturb] = createState(false)
 
-execAsync('pgrep -x hyprsunset')
-  .then(() => setNightLightEnabled(true))
-  .catch(() => setNightLightEnabled(false))
+const night = await execAsync('pgrep -x hyprsunset')
+  .then(() => true).catch(() => false)
+export const [nightLightEnabled, setNightLightEnabled] = createState(night)
+
 
 export const currentTime = createPoll("", 1000, () =>
   GLib.DateTime.new_now_local().format("%H:%M")!)
@@ -30,10 +31,9 @@ export const uptime = createPoll("", 5 * 60 * 1000, async () => {
     .replace(/ weeks| week/, "w")
 })
 
-export const memoryUsage = createPoll("", 5 * 1000, async () => {
-  const output = await execAsync(["sh", "-c", `free --mega | awk 'NR==2{print $3 " MB"}'`])
-  return output
-})
+export const memoryUsage = createPoll("", 5 * 1000, async () =>
+  await execAsync(["sh", "-c", `free --mega | awk 'NR==2{print $3 " MB"}'`])
+)
 
 type WeatherData = {
   timestamp: string

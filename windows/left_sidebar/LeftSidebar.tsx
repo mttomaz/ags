@@ -1,11 +1,11 @@
-import { Astal } from "ags/gtk4"
 import Gtk from "gi://Gtk?version=4.0"
 import Gdk from "gi://Gdk?version=4.0"
+import { Astal } from "ags/gtk4"
 import app from "ags/gtk4/app"
-import { Accessor, With } from "ags"
+import { Accessor, With } from "gnim"
+import Time from "@widgets/Time/Time"
 import { getWeatherEmoji, getWeatherImage, pathToURI } from "@common/functions"
 import { currentDay, weatherReport } from "@common/vars"
-import Time from "@widgets/Time/Time"
 
 
 function TimeAndDate() {

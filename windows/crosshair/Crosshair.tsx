@@ -1,7 +1,7 @@
-import app from "ags/gtk4/app"
 import Gdk from "gi://Gdk?version=4.0"
 import { Astal } from "ags/gtk4"
-import { Accessor } from "ags"
+import app from "ags/gtk4/app"
+import { Accessor } from "gnim"
 
 export default function Crosshair(monitor: Gdk.Monitor, visible: Accessor<boolean>) {
   return <window
@@ -15,8 +15,6 @@ export default function Crosshair(monitor: Gdk.Monitor, visible: Accessor<boolea
     keymode={Astal.Keymode.NONE}
     canFocus={false}
   >
-    <box
-      class="Dot"
-    />
+    <box class="Dot" />
   </window>
 }

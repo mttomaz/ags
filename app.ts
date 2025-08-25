@@ -1,14 +1,14 @@
-import app from "ags/gtk4/app"
-import Bar from "@windows/bar/Bar"
 import Gdk from "gi://Gdk?version=4.0"
+import app from "ags/gtk4/app"
 import requestHandler from "./requestHandler"
-import { showBar, showCrosshair, showLeftSidebar, showRightSidebar } from "@common/vars"
 import { compileScss } from "@common/cssHotReload"
+import * as vars from "@common/vars"
+import Bar from "@windows/bar/Bar"
+import LeftSidebar from "@windows/left_sidebar/LeftSidebar"
+import RightSidebar from "@windows/right_sidebar/RightSidebar"
+import OSD from "@windows/osd/OSD"
 import NotificationPopups from "@windows/notification_popups/NotificationPopups"
 import Crosshair from "@windows/crosshair/Crosshair"
-import LeftSidebar from "@windows/left_sidebar/LeftSidebar"
-import OSD from "@windows/osd/OSD"
-import RightSidebar from "@windows/right_sidebar/RightSidebar"
 
 function getTargetMonitor(monitors: Array<Gdk.Monitor>) {
   const notebookModel = "0x9051"
@@ -25,12 +25,13 @@ app.start({
   requestHandler: requestHandler,
   main() {
     const targetMonitor = getTargetMonitor(app.get_monitors())
-    Bar(targetMonitor, showBar)
-    LeftSidebar(targetMonitor, showLeftSidebar)
-    RightSidebar(targetMonitor, showRightSidebar)
+
+    Bar(targetMonitor, vars.showBar)
+    LeftSidebar(targetMonitor, vars.showLeftSidebar)
+    RightSidebar(targetMonitor, vars.showRightSidebar)
     OSD(targetMonitor)
     NotificationPopups(targetMonitor)
-    Crosshair(targetMonitor, showCrosshair)
+    Crosshair(targetMonitor, vars.showCrosshair)
 
     print(`\nAstal Windows applied on monitor: ${targetMonitor.model}`)
   },

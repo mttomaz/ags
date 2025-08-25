@@ -1,4 +1,4 @@
-import { setShowBar, setShowCrosshair, setShowLeftSidebar, setShowRightSidebar, showBar, showCrosshair, showLeftSidebar, showRightSidebar } from "@common/vars"
+import * as vars from "@common/vars"
 
 export default function requestHandler(request: string, res: (response: any) => void) {
   const args = request.split(':')
@@ -6,22 +6,30 @@ export default function requestHandler(request: string, res: (response: any) => 
   switch (args[0]) {
     case 'bar':
       switch (args[1]) {
-        case 'toggle': return res(setShowBar(!showBar.get()))
+        case 'toggle':
+          vars.setShowBar(!vars.showBar.get())
+          return res('bar: ok')
         default: return res('Unknown command for bar.')
       }
     case 'leftsidebar':
       switch (args[1]) {
-        case 'toggle': return res(setShowLeftSidebar(!showLeftSidebar.get()))
-        default: return res('Unknown command for bar.')
+        case 'toggle':
+          vars.setShowLeftSidebar(!vars.showLeftSidebar.get())
+          return res('leftsidebar: ok')
+        default: return res('Unknown command for leftsidebar.')
       }
     case 'rightsidebar':
       switch (args[1]) {
-        case 'toggle': return res(setShowRightSidebar(!showRightSidebar.get()))
-        default: return res('Unknown command for bar.')
+        case 'toggle':
+          vars.setShowRightSidebar(!vars.showRightSidebar.get())
+          return res('rightsidebar: ok')
+        default: return res('Unknown command for rightsidebar.')
       }
     case 'crosshair':
       switch (args[1]) {
-        case 'toggle': return res(setShowCrosshair(!showCrosshair.get()))
+        case 'toggle':
+          vars.setShowCrosshair(!vars.showCrosshair.get())
+          return res('crosshair: ok')
         default: return res('Unknown command for crosshair.')
       }
     default:

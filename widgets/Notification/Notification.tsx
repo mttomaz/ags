@@ -1,12 +1,13 @@
 import Gtk from "gi://Gtk?version=4.0"
 import Gdk from "gi://Gdk?version=4.0"
-import Adw from "gi://Adw"
-import GLib from "gi://GLib"
-import AstalNotifd from "gi://AstalNotifd"
-import Pango from "gi://Pango"
+import GLib from "gi://GLib?version=2.0"
+import Adw from "gi://Adw?version=1"
+import Pango from "gi://Pango?version=1.0"
 import { timeout } from "ags/time"
+import AstalNotifd from "gi://AstalNotifd?version=0.1"
 import { setNotifications } from "@windows/notification_popups/NotificationPopups"
 import { escapeMarkup } from "@common/functions"
+
 
 function isIcon(icon?: string | null) {
   const iconTheme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default()!)

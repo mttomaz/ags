@@ -1,7 +1,7 @@
-import Pango from "gi://Pango?version=1.0"
-import AstalMpris from "gi://AstalMpris?version=0.1"
 import Gtk from "gi://Gtk?version=4.0"
+import Pango from "gi://Pango?version=1.0"
 import { Accessor, createBinding, createState } from "gnim"
+import AstalMpris from "gi://AstalMpris?version=0.1"
 import { pathToURI } from "@common/functions"
 
 function lengthStr(length: number) {
