@@ -2,9 +2,10 @@ import Gtk from "gi://Gtk?version=4.0"
 import Gdk from "gi://Gdk?version=4.0"
 import Graphene from "gi://Graphene?version=1.0"
 import { Astal } from "ags/gtk4"
-import { Accessor, For, createState } from "gnim"
+import { Accessor, For, With, createState } from "gnim"
 import AstalApps from "gi://AstalApps?version=0.1"
 import { setShowLauncher } from "@common/vars"
+import { exec } from "ags/process"
 
 
 export default function Launcher(monitor: Gdk.Monitor, visible: Accessor<boolean>) {
@@ -13,17 +14,80 @@ export default function Launcher(monitor: Gdk.Monitor, visible: Accessor<boolean
   let win: Astal.Window
 
   const apps = new AstalApps.Apps()
-  const [list, setList] = createState(new Array<AstalApps.Application>())
+  const [appList, setAppList] = createState(new Array<AstalApps.Application>())
+  const [mode, setMode] = createState("")
 
   function search(text: string) {
-    if (text === "") setList([])
-    else setList(apps.fuzzy_query(text).slice(0, 8))
+    if (text.startsWith(":s")) {
+      setMode("websearch")
+    } else if (text) {
+      setMode("apps")
+      setAppList(apps.fuzzy_query(text).slice(0, 8))
+    } else {
+      setAppList([])
+    }
   }
 
-  function launch(app?: AstalApps.Application) {
+  function launchApp(app?: AstalApps.Application) {
     if (app) {
       setShowLauncher(false)
       app.launch()
+    }
+  }
+
+  function webSearch(text: string) {
+    if (text) {
+      setShowLauncher(false)
+      if (text.startsWith("http")) {
+        exec(["xdg-open", text])
+      } else {
+        exec(["xdg-open", `https://duckduckgo.com/?q=${text}`])
+      }
+    }
+  }
+
+  function AppMode() {
+    return (
+      <box orientation={Gtk.Orientation.VERTICAL}>
+        <For each={appList}>
+          {(app, index) => (
+            <button class="App" onClicked={() => launchApp(app)}>
+              <box>
+                <image class="Icon" iconName={app.iconName} pixelSize={24} />
+                <label class="Name" label={app.name} maxWidthChars={40} wrap />
+                <label
+                  hexpand
+                  halign={Gtk.Align.END}
+                  label={index((i) => `alt + ${i + 1}`)}
+                />
+              </box>
+            </button>
+          )}
+        </For>
+      </box>
+    )
+  }
+
+  function WebSearchMode() {
+    return (
+      <box
+        class="WebSearchMode"
+        orientation={Gtk.Orientation.VERTICAL}
+        halign={Gtk.Align.CENTER}
+      >
+        <label class="Icon" label="󰖟"/>
+        <label class="Description" label='Press "Enter" to search the web.'/>
+      </box>
+    )
+  }
+
+  function onActivate(text: string) {
+    const cMode = mode.get()
+    if (text === "") return
+    if (cMode === "apps") {
+      return launchApp(appList.get()[0])
+    } else if (cMode === "websearch") {
+      return webSearch(text.replace(/:s |:s/, ""))
     }
   }
 
@@ -43,7 +107,7 @@ export default function Launcher(monitor: Gdk.Monitor, visible: Accessor<boolean
     if (mod === Gdk.ModifierType.ALT_MASK) {
       for (const i of [1, 2, 3, 4, 5, 6, 7, 8, 9] as const) {
         if (keyval === Gdk[`KEY_${i}`]) {
-          return launch(list.get()[i - 1])
+          if (mode.get() === "apps") return launchApp(appList.get()[i - 1])
         }
       }
     }
@@ -72,6 +136,7 @@ export default function Launcher(monitor: Gdk.Monitor, visible: Accessor<boolean
       onNotifyVisible={({ visible }) => {
         if (visible) searchentry.grab_focus()
         else searchentry.set_text("")
+        setMode("apps")
       }}
     >
       <Gtk.EventControllerKey onKeyPressed={onKey} />
@@ -86,26 +151,21 @@ export default function Launcher(monitor: Gdk.Monitor, visible: Accessor<boolean
         <entry
           $={(ref) => (searchentry = ref)}
           onNotifyText={({ text }) => search(text)}
+          onActivate={({ text }) => onActivate(text)}
           placeholderText="Start typing to search"
         />
-        <Gtk.Separator visible={list((l) => l.length > 0)} />
-        <box orientation={Gtk.Orientation.VERTICAL}>
-          <For each={list}>
-            {(app, index) => (
-              <button class="App" onClicked={() => launch(app)}>
-                <box>
-                  <image class="Icon" iconName={app.iconName} pixelSize={24} />
-                  <label class="Name" label={app.name} maxWidthChars={40} wrap />
-                  <label
-                    hexpand
-                    halign={Gtk.Align.END}
-                    label={index((i) => `alt + ${i + 1}`)}
-                  />
-                </box>
-              </button>
-            )}
-          </For>
-        </box>
+        <With value={mode}>
+          {(mode) => {
+            switch (mode) {
+              case "apps":
+                return <AppMode />
+              case "websearch":
+                return <WebSearchMode />
+              default:
+                return null
+            }
+          }}
+        </With>
       </box>
     </window>
   )
