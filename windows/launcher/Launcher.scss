@@ -26,5 +26,24 @@ window.Launcher {
         font-size: 64px;
       }
     }
+    .WallpaperMode {
+      margin-top: 4px;
+      .Wallpaper {
+        background-color: $bg2;
+        min-width: 380px;
+        margin: 4px 0px;
+        &:last-child {
+          margin-bottom: 0px;
+        }
+        .Image {
+          min-height: 50px;
+          min-width: 100px;
+          background-position: center;
+          background-size: cover;
+          border-radius: 8px;
+          margin-right: 6px;
+        }
+      }
+    }
   }
 }

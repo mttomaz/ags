@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "ags": "github:aylur/ags",
+    "fuse.js": "^7.1.0",
     "gnim": "latest"
   },
   "prettier": {

@@ -6,6 +6,9 @@ import { Accessor, For, With, createState } from "gnim"
 import AstalApps from "gi://AstalApps?version=0.1"
 import { setShowLauncher } from "@common/vars"
 import { exec } from "ags/process"
+import Fuse from "fuse.js"
+import { pathToURI } from "@common/functions"
+import Pango from "gi://Pango?version=1.0"
 
 
 export default function Launcher(monitor: Gdk.Monitor, visible: Accessor<boolean>) {
@@ -15,16 +18,33 @@ export default function Launcher(monitor: Gdk.Monitor, visible: Accessor<boolean
 
   const apps = new AstalApps.Apps()
   const [appList, setAppList] = createState(new Array<AstalApps.Application>())
+  const wallpaperList = JSON.parse(exec(`${SRC}/windows/launcher/scripts/wallpapers.sh`) || "{}")
+  const [selectedWallpapers, setSelectedWallpapers] = createState(new Array)
   const [mode, setMode] = createState("")
 
   function search(text: string) {
-    if (text.startsWith(":s")) {
-      setMode("websearch")
-    } else if (text) {
-      setMode("apps")
-      setAppList(apps.fuzzy_query(text).slice(0, 8))
+    if (text) {
+      if (text.startsWith(":s ")) {
+        setMode("websearch")
+
+      } else if (text.startsWith(":w ")) {
+        setMode("wallpaper")
+        const query = text.replace(":w ", "")
+        if (query) {
+          const fuse = new Fuse(wallpaperList, { keys: ["name"], threshold: 0.3 })
+          const results = fuse.search(query).slice(0, 4).map(r => r.item)
+          setSelectedWallpapers(results)
+        } else {
+          setSelectedWallpapers(wallpaperList.slice()
+            .sort(() => Math.random() - 0.5).slice(0, 4))
+        }
+      } else {
+        setMode("apps")
+        setAppList(apps.fuzzy_query(text).slice(0, 8))
+      }
     } else {
       setAppList([])
+      setSelectedWallpapers([])
     }
   }
 
@@ -43,6 +63,13 @@ export default function Launcher(monitor: Gdk.Monitor, visible: Accessor<boolean
       } else {
         exec(["xdg-open", `https://duckduckgo.com/?q=${text}`])
       }
+    }
+  }
+
+  function setWallpaper(path: string) {
+    if (path) {
+      setShowLauncher(false)
+      exec([`${SRC}/windows/launcher/scripts/set-wallpaper.sh`, path])
     }
   }
 
@@ -75,8 +102,40 @@ export default function Launcher(monitor: Gdk.Monitor, visible: Accessor<boolean
         orientation={Gtk.Orientation.VERTICAL}
         halign={Gtk.Align.CENTER}
       >
-        <label class="Icon" label="󰖟"/>
-        <label class="Description" label='Press "Enter" to search the web.'/>
+        <label class="Icon" label="󰖟" />
+        <label class="Description" label='Press "Enter" to search the web.' />
+      </box>
+    )
+  }
+
+  function WallpaperMode() {
+    return (
+      <box
+        class="WallpaperMode"
+        orientation={Gtk.Orientation.VERTICAL}
+        halign={Gtk.Align.CENTER}
+      >
+        <For each={selectedWallpapers}>
+          {(wall, index) => (
+            <button
+              class="Wallpaper"
+              onClicked={() => setWallpaper(wall.path)}
+            >
+              <box>
+                <box
+                  class="Image"
+                  css={`background-image: url('${pathToURI(wall.path)}')`}
+                />
+                <label label={wall.name} maxWidthChars={40} ellipsize={Pango.EllipsizeMode.END} />
+                <label
+                  hexpand
+                  halign={Gtk.Align.END}
+                  label={index((i) => `alt + ${i + 1}`)}
+                />
+              </box>
+            </button>
+          )}
+        </For>
       </box>
     )
   }
@@ -87,7 +146,9 @@ export default function Launcher(monitor: Gdk.Monitor, visible: Accessor<boolean
     if (cMode === "apps") {
       return launchApp(appList.get()[0])
     } else if (cMode === "websearch") {
-      return webSearch(text.replace(/:s |:s/, ""))
+      return webSearch(text.replace(":s ", ""))
+    } else if (cMode === "wallpaper") {
+      return setWallpaper(selectedWallpapers.get()[0].path)
     }
   }
 
@@ -107,7 +168,14 @@ export default function Launcher(monitor: Gdk.Monitor, visible: Accessor<boolean
     if (mod === Gdk.ModifierType.ALT_MASK) {
       for (const i of [1, 2, 3, 4, 5, 6, 7, 8, 9] as const) {
         if (keyval === Gdk[`KEY_${i}`]) {
-          if (mode.get() === "apps") return launchApp(appList.get()[i - 1])
+          switch (mode.get()) {
+            case "apps":
+              return launchApp(appList.get()[i - 1])
+            case "wallpaper":
+              return setWallpaper(selectedWallpapers.get()[i - 1].path)
+            default:
+              return
+          }
         }
       }
     }
@@ -136,7 +204,7 @@ export default function Launcher(monitor: Gdk.Monitor, visible: Accessor<boolean
       onNotifyVisible={({ visible }) => {
         if (visible) searchentry.grab_focus()
         else searchentry.set_text("")
-        setMode("apps")
+        setMode("")
       }}
     >
       <Gtk.EventControllerKey onKeyPressed={onKey} />
@@ -161,6 +229,8 @@ export default function Launcher(monitor: Gdk.Monitor, visible: Accessor<boolean
                 return <AppMode />
               case "websearch":
                 return <WebSearchMode />
+              case "wallpaper":
+                return <WallpaperMode />
               default:
                 return null
             }
