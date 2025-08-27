@@ -1,14 +1,14 @@
 import Gtk from "gi://Gtk?version=4.0"
 import Gdk from "gi://Gdk?version=4.0"
+import Pango from "gi://Pango?version=1.0"
 import Graphene from "gi://Graphene?version=1.0"
 import { Astal } from "ags/gtk4"
+import { exec, execAsync } from "ags/process"
 import { Accessor, For, With, createState } from "gnim"
 import AstalApps from "gi://AstalApps?version=0.1"
-import { setShowLauncher } from "@common/vars"
-import { exec } from "ags/process"
 import Fuse from "fuse.js"
-import { pathToURI } from "@common/functions"
-import Pango from "gi://Pango?version=1.0"
+import emoji from './emoji.json';
+import { setShowLauncher } from "@common/vars"
 
 
 export default function Launcher(monitor: Gdk.Monitor, visible: Accessor<boolean>) {
@@ -19,7 +19,18 @@ export default function Launcher(monitor: Gdk.Monitor, visible: Accessor<boolean
   const apps = new AstalApps.Apps()
   const [appList, setAppList] = createState(new Array<AstalApps.Application>())
   const wallpaperList = JSON.parse(exec(`${SRC}/windows/launcher/scripts/wallpapers.sh`) || "{}")
+  const emojiList = emoji.map(e => ({
+    emoji: e.char,
+    name: e.name,
+    category: e.category
+  }))
   const [selectedWallpapers, setSelectedWallpapers] = createState(new Array)
+  const [selectedEmojis, setSelectedEmojis] = createState(new Array)
+  const emojiFuse = new Fuse(emojiList, {
+    keys: ['name', 'category'],
+    threshold: 0.4
+  })
+  const wallsFuse = new Fuse(wallpaperList, { keys: ["name"], threshold: 0.3 })
   const [mode, setMode] = createState("")
 
   function search(text: string) {
@@ -27,24 +38,24 @@ export default function Launcher(monitor: Gdk.Monitor, visible: Accessor<boolean
       if (text.startsWith(":s ")) {
         setMode("websearch")
 
+      } else if (text.startsWith(":e ")) {
+        setMode("emoji")
+        const query = text.replace(":e ", "")
+        if (query) return setSelectedEmojis(emojiFuse.search(query).slice(0, 8).map(r => r.item))
+        return setSelectedEmojis([])
+
       } else if (text.startsWith(":w ")) {
         setMode("wallpaper")
         const query = text.replace(":w ", "")
-        if (query) {
-          const fuse = new Fuse(wallpaperList, { keys: ["name"], threshold: 0.3 })
-          const results = fuse.search(query).slice(0, 4).map(r => r.item)
-          setSelectedWallpapers(results)
-        } else {
-          setSelectedWallpapers(wallpaperList.slice()
-            .sort(() => Math.random() - 0.5).slice(0, 4))
-        }
+        if (query) return setSelectedWallpapers(wallsFuse.search(query).slice(0, 4).map(r => r.item))
+        return setSelectedWallpapers([])
+
       } else {
         setMode("apps")
         setAppList(apps.fuzzy_query(text).slice(0, 8))
       }
     } else {
-      setAppList([])
-      setSelectedWallpapers([])
+      setMode("")
     }
   }
 
@@ -66,10 +77,17 @@ export default function Launcher(monitor: Gdk.Monitor, visible: Accessor<boolean
     }
   }
 
+  function copyEmoji(emoji: string) {
+    if (emoji) {
+      setShowLauncher(false)
+      execAsync(`wl-copy "${emoji}"`)
+    }
+  }
+
   function setWallpaper(path: string) {
     if (path) {
       setShowLauncher(false)
-      exec([`${SRC}/windows/launcher/scripts/set-wallpaper.sh`, path])
+      execAsync([`${SRC}/windows/launcher/scripts/set-wallpaper.sh`, path])
     }
   }
 
@@ -108,6 +126,35 @@ export default function Launcher(monitor: Gdk.Monitor, visible: Accessor<boolean
     )
   }
 
+  function EmojiMode() {
+    return (
+      <box
+        class="EmojiMode"
+        orientation={Gtk.Orientation.VERTICAL}
+        halign={Gtk.Align.CENTER}
+      >
+        <For each={selectedEmojis}>
+          {(item, index) => (
+            <button
+              class="Emoji"
+              onClicked={() => copyEmoji(item.emoji)}
+            >
+              <box>
+                <label class="Icon" label={item.emoji} />
+                <label label={item.name} maxWidthChars={30} ellipsize={Pango.EllipsizeMode.END} />
+                <label
+                  hexpand
+                  halign={Gtk.Align.END}
+                  label={index((i) => `alt + ${i + 1}`)}
+                />
+              </box>
+            </button>
+          )}
+        </For>
+      </box>
+    )
+  }
+
   function WallpaperMode() {
     return (
       <box
@@ -122,11 +169,8 @@ export default function Launcher(monitor: Gdk.Monitor, visible: Accessor<boolean
               onClicked={() => setWallpaper(wall.path)}
             >
               <box>
-                <box
-                  class="Image"
-                  css={`background-image: url('${pathToURI(wall.path)}')`}
-                />
-                <label label={wall.name} maxWidthChars={40} ellipsize={Pango.EllipsizeMode.END} />
+                <image class="Image" file={wall.path}  />
+                <label label={wall.name} maxWidthChars={30} ellipsize={Pango.EllipsizeMode.END} />
                 <label
                   hexpand
                   halign={Gtk.Align.END}
@@ -141,14 +185,17 @@ export default function Launcher(monitor: Gdk.Monitor, visible: Accessor<boolean
   }
 
   function onActivate(text: string) {
-    const cMode = mode.get()
-    if (text === "") return
-    if (cMode === "apps") {
-      return launchApp(appList.get()[0])
-    } else if (cMode === "websearch") {
-      return webSearch(text.replace(":s ", ""))
-    } else if (cMode === "wallpaper") {
-      return setWallpaper(selectedWallpapers.get()[0].path)
+    switch (mode.get()) {
+      case "":
+        return
+      case "apps":
+        return launchApp(appList.get()[0])
+      case "emoji":
+        return copyEmoji(selectedEmojis.get()[0].emoji)
+      case "websearch":
+        return webSearch(text.replace(":s ", ""))
+      case "wallpaper":
+        return setWallpaper(selectedWallpapers.get()[0].path)
     }
   }
 
@@ -171,6 +218,8 @@ export default function Launcher(monitor: Gdk.Monitor, visible: Accessor<boolean
           switch (mode.get()) {
             case "apps":
               return launchApp(appList.get()[i - 1])
+            case "emoji":
+              return copyEmoji(selectedEmojis.get()[i - 1].emoji)
             case "wallpaper":
               return setWallpaper(selectedWallpapers.get()[i - 1].path)
             default:
@@ -229,9 +278,14 @@ export default function Launcher(monitor: Gdk.Monitor, visible: Accessor<boolean
                 return <AppMode />
               case "websearch":
                 return <WebSearchMode />
+              case "emoji":
+                return <EmojiMode />
               case "wallpaper":
                 return <WallpaperMode />
               default:
+                setAppList([])
+                setSelectedEmojis([])
+                setSelectedWallpapers([])
                 return null
             }
           }}

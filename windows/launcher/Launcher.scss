@@ -36,11 +36,25 @@ window.Launcher {
           margin-bottom: 0px;
         }
         .Image {
-          min-height: 50px;
-          min-width: 100px;
+          min-width: 32px;
+          min-height: 18px;
           background-position: center;
           background-size: cover;
           border-radius: 8px;
+          margin-right: 6px;
+        }
+      }
+    }
+    .EmojiMode {
+      margin-top: 4px;
+      .Emoji {
+        background-color: $bg2;
+        min-width: 380px;
+        margin: 4px 0px;
+        &:last-child {
+          margin-bottom: 0px;
+        }
+        .Icon {
           margin-right: 6px;
         }
       }
