@@ -1,4 +1,4 @@
-import { exec, execAsync } from "ags/process"
+import { execAsync } from "ags/process"
 import AstalApps from "gi://AstalApps?version=0.1"
 import { setShowLauncher } from "@common/vars"
 
@@ -14,9 +14,9 @@ export function webSearch(text: string) {
   if (text) {
     setShowLauncher(false)
     if (text.startsWith("http")) {
-      exec(["xdg-open", text])
+      execAsync(["xdg-open", text])
     } else {
-      exec(["xdg-open", `https://duckduckgo.com/?q=${text}`])
+      execAsync(["xdg-open", `https://duckduckgo.com/?q=${text}`])
     }
   }
 }
