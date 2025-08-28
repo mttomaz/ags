@@ -1,0 +1,44 @@
+@use "../../theme" as *;
+
+window.Launcher {
+  background: transparent;
+  color: $fg1;
+
+  .Content {
+    background: $bg1;
+    min-width: 400px;
+    border-radius: 12px;
+    padding: 8px;
+
+    .App {
+      background-color: $bg2;
+      margin: 4px 0px;
+      .Icon {
+        padding-right: 6px;
+      }
+
+      &:last-child {
+        margin-bottom: 0px;
+      }
+    }
+    .EmojiMode {
+      margin-top: 4px;
+      .Emoji {
+        background-color: $bg2;
+        min-width: 380px;
+        margin: 4px 0px;
+        &:last-child {
+          margin-bottom: 0px;
+        }
+        .Icon {
+          margin-right: 6px;
+        }
+      }
+    }
+    .WebSearchMode {
+      .Icon {
+        font-size: 64px;
+      }
+    }
+  }
+}

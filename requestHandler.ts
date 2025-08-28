@@ -32,6 +32,13 @@ export default function requestHandler(request: string, res: (response: any) => 
           return res('crosshair: ok')
         default: return res('Unknown command for crosshair.')
       }
+    case 'launcher':
+      switch (args[1]) {
+        case 'toggle':
+          vars.setShowLauncher(!vars.showLauncher.get())
+          return res('launcher: ok')
+        default: return res('Unknown command for launcher.')
+      }
     default:
       return res('Unknown request.')
   }
