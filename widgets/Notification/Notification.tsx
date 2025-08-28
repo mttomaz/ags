@@ -43,11 +43,9 @@ export default function Notification({ notification: n }: NotificationProps) {
   return (
     <Adw.Clamp maximumSize={400}>
       <box
-        $={() => {
-          timeout(5000, () => {
-            setNotifications((ns) => ns.filter((notif) => notif.id !== n.id))
-          })
-        }}
+        $={() => timeout(5000, () =>
+          setNotifications((ns) => ns.filter((notif) => notif.id !== n.id)))
+        }
         widthRequest={300}
         class={`Notification ${urgency(n)}`}
         orientation={Gtk.Orientation.VERTICAL}

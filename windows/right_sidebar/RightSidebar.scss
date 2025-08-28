@@ -80,9 +80,12 @@ window.RightSidebar {
         background-color: $bg2;
       }
     }
+    .Bluetooth .Icon {
+      padding-right: 2px;
+    }
 
     .doNotDisturb .Icon {
-      padding: 0 12px 0 12px;
+      padding: 0 8px 0 12px;
     }
     .Wifi .Description {
       padding-left: 10px;

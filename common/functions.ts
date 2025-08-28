@@ -1,22 +1,15 @@
-import Gtk from "gi://Gtk?version=4.0";
-import Gdk from "gi://Gdk?version=4.0";
-import GLib from "gi://GLib?version=2.0";
-
-export function isIcon(icon?: string | null) {
-  const iconTheme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default()!)
-  return icon && iconTheme.has_icon(icon)
-}
+import GLib from "gi://GLib?version=2.0"
 
 export function pathToURI(path: string): string {
   switch (true) {
     case (/^[/]/).test(path):
-      return `file://${path}`;
+      return `file://${path}`
 
     case (/^[~]/).test(path):
     case (/^file:\/\/[~]/i).test(path):
-      return `file://${GLib.get_home_dir()}/${path.replace(/^(file\:\/\/|[~]|file\:\/\[~])/i, "")}`;
+      return `file://${GLib.get_home_dir()}/${path.replace(/^(file\:\/\/|[~]|file\:\/\[~])/i, "")}`
   }
-  return path;
+  return path
 }
 
 export function getWeatherEmoji(desc: string): string {
@@ -50,5 +43,5 @@ export function getWeatherImage(desc: string): string {
 
 
 export function escapeMarkup(text: string): string {
-  return text.replace(/&/g, "&amp;");
+  return text.replace(/&/g, "&amp")
 }

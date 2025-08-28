@@ -28,13 +28,6 @@ function TimeAndDate() {
   )
 }
 
-function CalendarModule() {
-  return (
-    <box class="calendar" orientation={Gtk.Orientation.VERTICAL}>
-      <Gtk.Calendar />
-    </box>
-  )
-}
 
 function getUpcomingHours(hourly: any[]) {
   const now = new Date()
@@ -102,7 +95,7 @@ function WeatherSidebar() {
                   <box
                     class="Info"
                     orientation={Gtk.Orientation.VERTICAL}>
-                    <label class="Wind" xalign={1} label={`${current.windspeedKmph}km 💨`} />
+                    <label class="Wind" xalign={1} label={`${current.windspeedKmph}km 🌪️`} />
                     <label class="Humidity" xalign={1} label={`${current.humidity}% 💧`} />
                     <label class="Precipitation" xalign={1} label={`${current.precipMM}mm ☔`} />
                   </box>
@@ -150,7 +143,9 @@ export default function LeftSidebar(monitor: Gdk.Monitor, visible: Accessor<bool
       class="sidebar"
     >
       <TimeAndDate />
-      <CalendarModule />
+      <box class="calendar">
+        <Gtk.Calendar />
+      </box>
       <WeatherSidebar />
     </box>
   </window>

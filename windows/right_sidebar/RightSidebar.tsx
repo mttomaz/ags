@@ -14,19 +14,18 @@ import NotificationPanel from "./panels/notification"
 import WifiPanel from "./panels/wifi"
 import BluetoothPanel from "./panels/bluetooth"
 
+const [currentPanel, setCurrentPanel] = createState("notification")
 
-function sidebarButton(icon: string | Accessor<string>,
+function sidebarButton(
+  icon: string | Accessor<string>,
   name: string | Accessor<string>,
   status: string | Accessor<string>,
   useLabel: Boolean
 ) {
-  const iconWidget = useLabel
-    ? (<label class="Icon" label={icon} />)
-    : (<image class="Icon" pixelSize={28} iconName={icon} />)
-
   return (
     <box class="sidebarButton">
-      {iconWidget}
+      {useLabel ? (<label class="Icon" label={icon} />)
+        : (<image class="Icon" pixelSize={28} iconName={icon} />)}
       <box
         class="Description"
         orientation={Gtk.Orientation.VERTICAL}
@@ -68,11 +67,8 @@ function SidebarPlayers() {
                 $={(self) => (
                   <With value={current}>
                     {(c) => {
-                      if (c) {
-                        self.visibleChildName = ps[c].entry
-                      } else {
-                        self.visibleChildName = ps[0].entry
-                      }
+                      if (c) self.visibleChildName = ps[c].entry
+                      else self.visibleChildName = ps[0].entry
                       return null
                     }}
                   </With>
@@ -80,10 +76,7 @@ function SidebarPlayers() {
                 transitionType={Gtk.StackTransitionType.SLIDE_LEFT_RIGHT}
               >
                 <For each={players}>
-                  {(ps) => {
-                    return MediaPlayer(ps)
-                  }
-                  }
+                  {(ps) => MediaPlayer(ps)}
                 </For>
               </stack>
             </box>
@@ -101,7 +94,7 @@ function WifiModule() {
   const wifiEnabled = createBinding(network.wifi, "enabled")
 
   return (
-    <box class="Wifi" halign={Gtk.Align.CENTER}>
+    <box class="Wifi">
       <With value={wifi}>
         {(wifi) => {
           const icon = createBinding(wifi, "iconName")
@@ -135,7 +128,7 @@ function BluetoothModule() {
         const name = device.name
         const battery = createBinding(device, "batteryPercentage")
         const status = createComputed([enabled, battery], (e, p) =>
-          e ? p > 0 ? `${Math.floor(p * 100)}%` : "on" : "off" )
+          e ? p > 0 ? `${Math.floor(p * 100)}%` : "on" : "off")
         return { icon, name, status }
       }
     }
@@ -145,7 +138,7 @@ function BluetoothModule() {
     return { icon, name, status }
   }
 
-  return <box class="Bluetooth" halign={Gtk.Align.CENTER}>
+  return <box class="Bluetooth">
     <button
       class={powered((p) => p ? "enabled" : "disabled")}
       onClicked={() => setCurrentPanel("bluetooth")}
@@ -161,60 +154,45 @@ function BluetoothModule() {
 }
 
 function DoNotDisturbModule() {
-  const icon = "󰍶"
-  const name = "Do Not Disturb"
-
   return (
     <box>
       <With value={doNotDisturb}>
-        {(dnd) => {
-          const status = dnd ? "on" : "off"
-          return (
-            <box
-              class="doNotDisturb"
-              halign={Gtk.Align.CENTER}>
-              <button
-                class={dnd ? "enabled" : "disabled"}
-                onClicked={() => setDoNotDisturb(!dnd)}>
-                {sidebarButton(icon, name, status, true)}
-              </button>
-            </box>
-          )
-        }}
+        {(dnd) => (
+          <box
+            class="doNotDisturb">
+            <button
+              class={dnd ? "enabled" : "disabled"}
+              onClicked={() => setDoNotDisturb(!dnd)}>
+              {sidebarButton("󰍶", "Do Not Disturb", dnd ? "on" : "off", true)}
+            </button>
+          </box>
+        )}
       </With>
     </box>
   )
 }
 
 function toggleNightLight() {
-  if (nightLightEnabled.get()) {
-    execAsync("pkill -x hyprsunset")
-    setNightLightEnabled(false)
-  } else {
-    execAsync("hyprsunset -t 5000")
-    setNightLightEnabled(true)
-  }
+  const nle = nightLightEnabled.get()
+  if (nle) execAsync("pkill -x hyprsunset")
+  else execAsync("hyprsunset -t 5000")
+  setNightLightEnabled(!nle)
 }
 
 function NightLightModule() {
-  const name = "Night Light"
   return <box>
     <With value={nightLightEnabled}>
-      {(enabled) => {
-        const icon = enabled ? "󱩌" : "󰌶"
-        const status = enabled ? "on" : "off"
-        return (
-          <box
-            class="nightLight"
-            halign={Gtk.Align.CENTER}>
-            <button
-              class={enabled ? "enabled" : "disabled"}
-              onClicked={toggleNightLight}>
-              {sidebarButton(icon, name, status, true)}
-            </button>
-          </box>
-        )
-      }}
+      {(enabled) => (
+        <box
+          class="nightLight">
+          <button
+            class={enabled ? "enabled" : "disabled"}
+            onClicked={toggleNightLight}>
+            {sidebarButton(enabled ? "󱩌" : "󰌶", "Night Light",
+              enabled ? "on" : "off", true)}
+          </button>
+        </box>
+      )}
     </With>
   </box>
 }
@@ -233,7 +211,6 @@ function UserModule() {
   </box>
 }
 
-const [currentPanel, setCurrentPanel] = createState("notification")
 
 function PanelStack() {
   return (

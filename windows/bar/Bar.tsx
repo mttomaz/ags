@@ -178,14 +178,7 @@ function NotificationBell() {
 }
 
 function Memory() {
-  return <With value={memoryUsage}>
-    {(memoryUsage) =>
-      <label
-        class="Memory"
-        label={memoryUsage}
-      />
-    }
-  </With>
+  return <label class="Memory" label={memoryUsage} />
 }
 
 export default function Bar(monitor: Gdk.Monitor, visible: Accessor<boolean>) {

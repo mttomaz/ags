@@ -35,16 +35,16 @@ export default function MediaPlayer(player: AstalMpris.Player) {
         maxWidthChars={28}
         halign={Gtk.Align.START}
         valign={Gtk.Align.START}
-        tooltipText={metadata(() => `${player.title}`)}
-        label={metadata(() => `${player.title}`)} />
+        tooltipText={metadata(() => player.title)}
+        label={metadata(() => player.title)} />
       <label
         class="Artist"
         vexpand
         halign={Gtk.Align.START}
         valign={Gtk.Align.START}
         label={metadata(() => {
-          if (player.artist) return `${player.artist}`
-          if (player.album) return `${player.album}`
+          if (player.artist) return player.artist
+          if (player.album) return player.album
           return ""
         })} />
     </box>
@@ -65,7 +65,8 @@ export default function MediaPlayer(player: AstalMpris.Player) {
             hexpand
             halign={Gtk.Align.START}
             visible={createBinding(player, "length").as(l => l > 0)}
-            label={createBinding(player, "length").as(l => l > 0 ? ` - ${lengthStr(l)}` : " - 0:00")}
+            label={createBinding(player, "length").as(l =>
+              l > 0 ? ` - ${lengthStr(l)}` : " - 0:00")}
           />
           <button
             class="Timer"
@@ -104,24 +105,21 @@ export default function MediaPlayer(player: AstalMpris.Player) {
       />
     </box>
   }
-
+  createBinding(player, "artUrl").subscribe(() => {
+    if (stop.get()) {
+      player.stop()
+      setStop(false)
+    }
+  })
 
   return <box
     class="MediaPlayer"
     name={player.entry}
     $type="named"
-    $={() => createBinding(player, "artUrl").subscribe(() => {
-      if (stop.get()) {
-        player.stop()
-        setStop(false)
-      }
-    })}
   >
     <Gtk.EventControllerMotion
-      $={(self) => {
-        self.connect("enter", () => setShowPosition(true))
-        self.connect("leave", () => setShowPosition(false))
-      }}
+      onEnter={() => setShowPosition(true)}
+      onLeave={() => setShowPosition(false)}
     />
     <box
       class="Cover"

@@ -1,7 +1,7 @@
-import Gtk from "gi://Gtk?version=4.0";
-import { execAsync } from "ags/process";
-import { createBinding, createComputed, For } from "gnim";
-import AstalBluetooth from "gi://AstalBluetooth?version=0.1";
+import Gtk from "gi://Gtk?version=4.0"
+import { execAsync } from "ags/process"
+import { createBinding, createComputed, For } from "gnim"
+import AstalBluetooth from "gi://AstalBluetooth?version=0.1"
 
 
 export default function BluetoothPanel() {
@@ -50,9 +50,9 @@ export default function BluetoothPanel() {
           label="󱘖"
           onClicked={() => {
             if (device.get_connected()) {
-              device.disconnect_device((res) => console.log(res))
+              device.disconnect_device()
             } else {
-              device.connect_device((res) => console.log(res))
+              device.connect_device()
             }
           }}
         />
@@ -89,7 +89,7 @@ export default function BluetoothPanel() {
       </button>
       <switch
         active={createBinding(bluetooth, "isPowered")}
-        onNotifyActive={() => execAsync("rfkill toggle bluetooth")}
+        onActivate={() => execAsync("rfkill toggle bluetooth")}
       />
     </box>
     <scrolledwindow

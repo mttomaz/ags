@@ -29,6 +29,24 @@ export default function OSD(monitor: Gdk.Monitor) {
     })
   }
 
+  brightness.connect("notify::screen", () =>
+    show(brightness.screen, "display-brightness-symbolic")
+  )
+
+  speaker.connect("notify::volume", () =>
+    show(speaker.volume, speaker.volumeIcon)
+  )
+
+  wp.connect("node-added", () =>
+    wp.get_nodes()?.forEach((node) => {
+      if (node.name === "Spotify") {
+        node.connect("notify::volume", () =>
+          show(node.volume, "spotify")
+        )
+      }
+    })
+  )
+
   return (
     <window
       gdkmonitor={monitor}
@@ -40,42 +58,19 @@ export default function OSD(monitor: Gdk.Monitor) {
       anchor={Astal.WindowAnchor.RIGHT}
     >
       <box
-        $={() => {
-          if (brightness) {
-            brightness.connect("notify::screen", () =>
-              show(brightness.screen, "display-brightness-symbolic"),
-            )
-          }
-
-          if (speaker) {
-            speaker.connect("notify::volume", () =>
-              show(speaker.volume, speaker.volumeIcon),
-            )
-          }
-
-          wp.connect("node-added", () => {
-            wp.get_nodes()?.forEach((node) => {
-              if (node.name === "Spotify") {
-                node.connect("notify::volume", () =>
-                  show(node.volume, "spotify")
-                )
-              }
-            })
-          })
-
-        }}>
-        <box orientation={Gtk.Orientation.VERTICAL} class="OSD">
-          <image iconName={icon} />
-          <levelbar
-            valign={Gtk.Align.CENTER}
-            heightRequest={100}
-            widthRequest={8}
-            orientation={Gtk.Orientation.VERTICAL}
-            inverted
-            value={value}
-          />
-          <label label={value(v => `${Math.floor(v * 100)}%`)} />
-        </box>
+        class="OSD"
+        orientation={Gtk.Orientation.VERTICAL}
+      >
+        <image iconName={icon} />
+        <levelbar
+          valign={Gtk.Align.CENTER}
+          heightRequest={100}
+          widthRequest={8}
+          orientation={Gtk.Orientation.VERTICAL}
+          inverted
+          value={value}
+        />
+        <label label={value(v => `${Math.floor(v * 100)}%`)} />
       </box>
     </window>
   )
