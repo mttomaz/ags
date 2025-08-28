@@ -21,30 +21,6 @@ window.Launcher {
         margin-bottom: 0px;
       }
     }
-    .WebSearchMode {
-      .Icon {
-        font-size: 64px;
-      }
-    }
-    .WallpaperMode {
-      margin-top: 4px;
-      .Wallpaper {
-        background-color: $bg2;
-        min-width: 380px;
-        margin: 4px 0px;
-        &:last-child {
-          margin-bottom: 0px;
-        }
-        .Image {
-          min-width: 32px;
-          min-height: 18px;
-          background-position: center;
-          background-size: cover;
-          border-radius: 8px;
-          margin-right: 6px;
-        }
-      }
-    }
     .EmojiMode {
       margin-top: 4px;
       .Emoji {
@@ -57,6 +33,11 @@ window.Launcher {
         .Icon {
           margin-right: 6px;
         }
+      }
+    }
+    .WebSearchMode {
+      .Icon {
+        font-size: 64px;
       }
     }
   }
