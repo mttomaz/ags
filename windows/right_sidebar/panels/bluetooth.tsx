@@ -20,6 +20,9 @@ export default function BluetoothPanel() {
     if (device.name === null) return <box />
     const visibleBinding = createComputed([devConn, createBinding(device, "paired")],
       (conn, paired) => conn || paired)
+    const status = createComputed([devConn, createBinding(device, "connecting")],
+      (connected, connecting) => connecting ? "Connecting..."
+        : connected ? "Connected" : "Paired")
     const battery = createComputed([devConn, createBinding(device, "batteryPercentage")],
       (c, p) => c && p > 0 ? ` (${Math.floor(p * 100)}%)` : "")
 
@@ -35,7 +38,7 @@ export default function BluetoothPanel() {
             visible={visibleBinding}
             class="Status"
             halign={Gtk.Align.START}
-            label={devConn(conn => conn ? "Connected" : "Paired")}
+            label={status}
           />
         </box>
       </box>
@@ -50,9 +53,10 @@ export default function BluetoothPanel() {
           label="󱘖"
           onClicked={() => {
             if (device.get_connected()) {
-              device.disconnect_device()
+              device.disconnect_device((d) => console.log(`Device ${d?.name} disconnected`))
             } else {
-              device.connect_device()
+              device.connect_device((d) => console.log(d?.connected ? `Device ${d?.name} connected`
+                : `Could not connect device ${d?.name}`))
             }
           }}
         />
