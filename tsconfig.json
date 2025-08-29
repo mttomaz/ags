@@ -1,21 +1,31 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
-    "strict": true,
-    "module": "ES2022",
-    "target": "ES2020",
-    "lib": ["ES2023"],
-    "moduleResolution": "Bundler",
-    // "checkJs": true,
-    // "allowJs": true,
     "jsx": "react-jsx",
     "jsxImportSource": "ags/gtk4",
+    "lib": [
+      "ES2023"
+    ],
+    "module": "ES2022",
+    "moduleResolution": "Bundler",
     "paths": {
-      "@assets/*": ["./assets/*"],
-      "@common/*": ["./common/*"],
-      "@widgets/*": ["./widgets/*"],
-      "@windows/*": ["./windows/*"],
-      "@utils/*": ["./utils/*"]
-    }
+      "@assets/*": [
+        "./assets/*"
+      ],
+      "@common/*": [
+        "./common/*"
+      ],
+      "@utils/*": [
+        "./utils/*"
+      ],
+      "@widgets/*": [
+        "./widgets/*"
+      ],
+      "@windows/*": [
+        "./windows/*"
+      ]
+    },
+    "strict": true,
+    "target": "ES2020"
   }
 }

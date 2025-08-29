@@ -1,12 +1,9 @@
-import GObject, { register, getter, setter } from "gnim/gobject"
-import { execAsync } from "ags/process"
 import { monitorFile, readFile, readFileAsync } from "ags/file"
+import { execAsync } from "ags/process"
+import GObject, { register, getter, setter } from "gnim/gobject"
 
 const screenDevice = await execAsync(["bash", "-c", `ls -w1 /sys/class/backlight | head -1` ])
-const kbdDevice = await execAsync(["bash", "-c", `ls -w1 /sys/class/leds | head -1` ])
-
 const screen = `/sys/class/backlight/${screenDevice}`
-const kbd = `/sys/class/leds/${kbdDevice}`
 
 let instance: Brightness
 
@@ -21,25 +18,8 @@ export default class Brightness extends GObject.Object {
     return instance
   }
 
-  #kbdMax = Number(readFile(`${kbd}/max_brightness`))
-  #kbd = Number(readFile(`${kbd}/brightness`))
-  #screenMax = Number(readFile(`${screen}/max_brightness`))
-  #screen = Number(readFile(`${screen}/brightness`)) / this.#screenMax
-
-  @getter(Number)
-  get kbd() {
-    return this.#kbd
-  }
-
-  @setter(Number)
-  set kbd(value) {
-    if (value < 0 || value > this.#kbdMax) return
-
-    execAsync(`brightnessctl -d ${kbd} s ${value} -q`).then(() => {
-      this.#kbd = value
-      this.notify("kbd")
-    })
-  }
+  #screenMax = Number(screenDevice ? readFile(`${screen}/max_brightness`) : "0")
+  #screen = Number(screenDevice ? readFile(`${screen}/brightness`) : "0") / this.#screenMax
 
   @getter(Number)
   get screen() {
@@ -65,12 +45,6 @@ export default class Brightness extends GObject.Object {
       const v = await readFileAsync(f)
       this.#screen = Number(v) / this.#screenMax
       this.notify("screen")
-    })
-
-    monitorFile(`${kbd}/brightness`, async (f) => {
-      const v = await readFileAsync(f)
-      this.#kbd = Number(v) / this.#kbdMax
-      this.notify("kbd")
     })
   }
 }

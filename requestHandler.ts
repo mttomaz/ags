@@ -1,45 +1,30 @@
 import * as vars from "@common/vars"
 
-export default function requestHandler(request: string, res: (response: any) => void) {
-  const args = request.split(':')
+export default function requestHandler(argv: string[], res: (response: any) => void) {
+  const [cmd, arg, ..._] = argv
 
-  switch (args[0]) {
-    case 'bar':
-      switch (args[1]) {
-        case 'toggle':
+  switch (cmd) {
+    case "toggle":
+      switch (arg) {
+        case "bar":
           vars.setShowBar(!vars.showBar.get())
           return res('bar: ok')
-        default: return res('Unknown command for bar.')
-      }
-    case 'leftsidebar':
-      switch (args[1]) {
-        case 'toggle':
-          vars.setShowLeftSidebar(!vars.showLeftSidebar.get())
-          return res('leftsidebar: ok')
-        default: return res('Unknown command for leftsidebar.')
-      }
-    case 'rightsidebar':
-      switch (args[1]) {
-        case 'toggle':
-          vars.setShowRightSidebar(!vars.showRightSidebar.get())
-          return res('rightsidebar: ok')
-        default: return res('Unknown command for rightsidebar.')
-      }
-    case 'crosshair':
-      switch (args[1]) {
-        case 'toggle':
-          vars.setShowCrosshair(!vars.showCrosshair.get())
-          return res('crosshair: ok')
-        default: return res('Unknown command for crosshair.')
-      }
-    case 'launcher':
-      switch (args[1]) {
-        case 'toggle':
+        case "launcher":
           vars.setShowLauncher(!vars.showLauncher.get())
           return res('launcher: ok')
-        default: return res('Unknown command for launcher.')
+        case "leftsidebar":
+          vars.setShowLeftSidebar(!vars.showLeftSidebar.get())
+          return res('leftsidebar: ok')
+        case "rightsidebar":
+          vars.setShowRightSidebar(!vars.showRightSidebar.get())
+          return res('rightsidebar: ok')
+        case "crosshair":
+          vars.setShowCrosshair(!vars.showCrosshair.get())
+          return res('crosshair: ok')
+        default:
+          return res(`Unknown window "${arg}"`)
       }
     default:
-      return res('Unknown request.')
+      return res(`Unknown request "${cmd}"`)
   }
 }
