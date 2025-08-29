@@ -3,11 +3,6 @@ import { execAsync } from "ags/process"
 import { createPoll } from "ags/time"
 import { createState } from "gnim"
 
-export const [showBar, setShowBar] = createState(true)
-export const [showCrosshair, setShowCrosshair] = createState(false)
-export const [showLauncher, setShowLauncher] = createState(false)
-export const [showLeftSidebar, setShowLeftSidebar] = createState(false)
-export const [showRightSidebar, setShowRightSidebar] = createState(false)
 export const [notificationsLength, setNotificationsLength] = createState(0)
 export const [doNotDisturb, setDoNotDisturb] = createState(false)
 

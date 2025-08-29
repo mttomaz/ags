@@ -1,6 +1,6 @@
 import Gtk from "gi://Gtk?version=4.0"
 import Gdk from "gi://Gdk?version=4.0"
-import { Astal } from "ags/gtk4"
+import Astal from "gi://Astal?version=4.0"
 import app from "ags/gtk4/app"
 import { exec, execAsync } from "ags/process"
 import { Accessor, createBinding, createComputed, createState, For, With } from "gnim"
@@ -14,6 +14,7 @@ import NotificationPanel from "./panels/notification"
 import WifiPanel from "./panels/wifi"
 import BluetoothPanel from "./panels/bluetooth"
 
+export let rightWin: Gtk.Window
 const [currentPanel, setCurrentPanel] = createState("notification")
 
 function sidebarButton(
@@ -229,16 +230,16 @@ function PanelStack() {
   )
 }
 
-export default function RightSidebar(monitor: Gdk.Monitor, visible: Accessor<boolean>) {
+export default function RightSidebar(monitor: Gdk.Monitor) {
   const { TOP, RIGHT } = Astal.WindowAnchor
 
   return <window
-    class="RightSidebar"
+    $={(ref) => (rightWin = ref)}
+    name="RightSidebar"
     namespace="rightsidebar"
     gdkmonitor={monitor}
     exclusivity={Astal.Exclusivity.EXCLUSIVE}
     application={app}
-    visible={visible}
     onHide={() => setCurrentPanel("notification")}
     layer={Astal.Layer.TOP}
     anchor={TOP | RIGHT}>

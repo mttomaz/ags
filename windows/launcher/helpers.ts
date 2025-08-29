@@ -1,18 +1,18 @@
 import { execAsync } from "ags/process"
 import AstalApps from "gi://AstalApps?version=0.1"
-import { setShowLauncher } from "@common/vars"
+import { win } from "./Launcher"
 
 
 export function launchApp(app?: AstalApps.Application) {
   if (app) {
-    setShowLauncher(false)
+    win.hide()
     app.launch()
   }
 }
 
 export function webSearch(text: string) {
   if (text) {
-    setShowLauncher(false)
+    win.hide()
     if (text.startsWith("http")) {
       execAsync(["xdg-open", text])
     } else {
@@ -23,7 +23,7 @@ export function webSearch(text: string) {
 
 export function copyEmoji(emoji: string) {
   if (emoji) {
-    setShowLauncher(false)
+    win.hide()
     execAsync(`wl-copy "${emoji}"`)
   }
 }

@@ -4,7 +4,9 @@
 @use "./panels/bluetooth.scss";
 @use "./panels/wifi.scss";
 
-window.RightSidebar {
+window#RightSidebar {
+  background-color: transparent;
+
   .sidebar {
     color: $fg1;
     background-color: $bg1;

@@ -1,14 +1,13 @@
 import Gdk from "gi://Gdk?version=4.0"
-import { Astal } from "ags/gtk4"
+import Astal from "gi://Astal?version=4.0"
 import app from "ags/gtk4/app"
 import { Accessor } from "gnim"
 
-export default function Crosshair(monitor: Gdk.Monitor, visible: Accessor<boolean>) {
+export default function Crosshair(monitor: Gdk.Monitor) {
   return <window
-    class="Crosshair"
+    name="Crosshair"
     namespace="crosshair"
     gdkmonitor={monitor}
-    visible={visible}
     layer={Astal.Layer.OVERLAY}
     application={app}
     exclusivity={Astal.Exclusivity.IGNORE}

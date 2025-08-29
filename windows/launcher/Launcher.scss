@@ -1,6 +1,6 @@
 @use "../../theme" as *;
 
-window.Launcher {
+window#Launcher {
   background: transparent;
   color: $fg1;
 

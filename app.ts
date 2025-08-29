@@ -27,13 +27,13 @@ app.start({
   main() {
     const targetMonitor = getTargetMonitor(app.get_monitors())
 
-    Bar(targetMonitor, vars.showBar)
-    Launcher(targetMonitor, vars.showLauncher)
-    LeftSidebar(targetMonitor, vars.showLeftSidebar)
-    RightSidebar(targetMonitor, vars.showRightSidebar)
+    Bar(targetMonitor)
+    Launcher(targetMonitor)
+    LeftSidebar(targetMonitor)
+    RightSidebar(targetMonitor)
     OSD(targetMonitor)
     NotificationPopups(targetMonitor)
-    Crosshair(targetMonitor, vars.showCrosshair)
+    Crosshair(targetMonitor)
 
     print(`\nAstal Windows applied on monitor: ${targetMonitor.model}`)
   },

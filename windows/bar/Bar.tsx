@@ -1,7 +1,7 @@
 import Gtk from "gi://Gtk?version=4.0"
 import Gdk from "gi://Gdk?version=4.0"
 import Pango from "gi://Pango?version=1.0"
-import { Astal } from "ags/gtk4"
+import Astal from "gi://Astal?version=4.0"
 import app from "ags/gtk4/app"
 import { Accessor, createBinding, createState, For, With } from "gnim"
 import AstalBattery from "gi://AstalBattery?version=0.1"
@@ -10,9 +10,11 @@ import AstalHyprland from "gi://AstalHyprland?version=0.1"
 import AstalMpris from "gi://AstalMpris?version=0.1"
 import AstalNetwork from "gi://AstalNetwork?version=0.1"
 import AstalTray from "gi://AstalTray?version=0.1"
+import { leftWin } from "@windows/left_sidebar/LeftSidebar"
+import { rightWin } from "@windows/right_sidebar/RightSidebar"
 import Time from "@widgets/Time/Time"
 import { getWeatherEmoji } from "@common/functions"
-import { weatherReport, notificationsLength, memoryUsage, setShowLeftSidebar, showLeftSidebar, setShowRightSidebar, showRightSidebar } from "@common/vars"
+import { weatherReport, notificationsLength, memoryUsage } from "@common/vars"
 
 function TrayModule() {
   const tray = AstalTray.get_default()
@@ -181,29 +183,25 @@ function Memory() {
   return <label class="Memory" label={memoryUsage} />
 }
 
-export default function Bar(monitor: Gdk.Monitor, visible: Accessor<boolean>) {
+export default function Bar(monitor: Gdk.Monitor) {
   const { TOP, LEFT, RIGHT } = Astal.WindowAnchor
 
   return (
     <window
-      class="Bar"
+      name="Bar"
       namespace="bar"
       gdkmonitor={monitor}
       exclusivity={Astal.Exclusivity.EXCLUSIVE}
       application={app}
-      visible={visible}
+      visible={true}
       layer={Astal.Layer.TOP}
       anchor={TOP | LEFT | RIGHT}
     >
       <centerbox>
-        <box
-          hexpand
-          $type="start"
-          halign={Gtk.Align.START}
-          css="margin-left: 4px">
+        <box $type="start" css="margin-left: 4px">
           <button
             class="TimeAndWeather"
-            onClicked={() => setShowLeftSidebar(!showLeftSidebar.get())}
+            onClicked={() => leftWin.get_visible() ? leftWin.hide() : leftWin.show()}
           >
             <box>
               <Time />
@@ -212,21 +210,14 @@ export default function Bar(monitor: Gdk.Monitor, visible: Accessor<boolean>) {
           </button>
           <Workspaces />
         </box>
-        <box
-          hexpand
-          halign={Gtk.Align.CENTER}
-          $type="center">
+        <box $type="center">
           <MediaModule />
         </box>
-        <box
-          hexpand
-          $type="end"
-          halign={Gtk.Align.END}
-          css="margin-right: 4px">
+        <box $type="end" css="margin-right: 4px">
           <TrayModule />
           <button
             class="TimeAndWeather"
-            onClicked={() => setShowRightSidebar(!showRightSidebar.get())}
+            onClicked={() => rightWin.get_visible() ? rightWin.hide() : rightWin.show()}
           >
             <box>
               <BatteryModule />

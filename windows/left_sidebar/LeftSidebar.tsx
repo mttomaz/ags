@@ -1,12 +1,13 @@
 import Gtk from "gi://Gtk?version=4.0"
 import Gdk from "gi://Gdk?version=4.0"
-import { Astal } from "ags/gtk4"
+import Astal from "gi://Astal?version=4.0"
 import app from "ags/gtk4/app"
 import { Accessor, With } from "gnim"
 import Time from "@widgets/Time/Time"
 import { getWeatherEmoji, getWeatherImage, pathToURI } from "@common/functions"
 import { currentDay, weatherReport } from "@common/vars"
 
+export let leftWin: Gtk.Window
 
 function TimeAndDate() {
   return (
@@ -125,17 +126,17 @@ function WeatherSidebar() {
 }
 
 
-export default function LeftSidebar(monitor: Gdk.Monitor, visible: Accessor<boolean>) {
+export default function LeftSidebar(monitor: Gdk.Monitor) {
   const { LEFT, TOP } = Astal.WindowAnchor
 
   return <window
-    class="LeftSidebar"
+    $={(ref) => (leftWin = ref)}
+    name="LeftSidebar"
     namespace="leftsidebar"
     gdkmonitor={monitor}
     exclusivity={Astal.Exclusivity.EXCLUSIVE}
     application={app}
     layer={Astal.Layer.TOP}
-    visible={visible}
     anchor={TOP | LEFT}>
     <box
       hexpand

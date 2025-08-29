@@ -1,6 +1,6 @@
 @use "../../theme" as *;
 
-window.Bar {
+window#Bar {
   border: none;
   box-shadow: none;
   color: $fg1;

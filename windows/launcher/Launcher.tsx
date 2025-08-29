@@ -1,21 +1,21 @@
 import Gtk from "gi://Gtk?version=4.0"
 import Gdk from "gi://Gdk?version=4.0"
 import Graphene from "gi://Graphene?version=1.0"
-import { Astal } from "ags/gtk4"
+import Astal from "gi://Astal?version=4.0"
+import app from "ags/gtk4/app"
 import { Accessor, With, createState } from "gnim"
 import AstalApps from "gi://AstalApps?version=0.1"
 import Fuse from "fuse.js"
-import { setShowLauncher } from "@common/vars"
 import emoji from './emoji.json'
 import { copyEmoji, launchApp, webSearch } from "./helpers"
 import { appList, emojiList, setAppList, setEmojiList } from "./vars"
 import { AppMode, EmojiMode, WebSearchMode } from "./modes"
 
+export let win: Gtk.Window
 
-export default function Launcher(monitor: Gdk.Monitor, visible: Accessor<boolean>) {
+export default function Launcher(monitor: Gdk.Monitor) {
   let contentbox: Gtk.Box
   let searchentry: Gtk.Entry
-  let win: Astal.Window
 
   const apps = new AstalApps.Apps()
   const emojis = emoji.map(e => ({ emoji: e.char, name: e.name, category: e.category }))
@@ -68,7 +68,7 @@ export default function Launcher(monitor: Gdk.Monitor, visible: Accessor<boolean
     mod: number,
   ) {
     if (keyval === Gdk.KEY_Escape) {
-      setShowLauncher(false)
+      win.hide()
       return
     }
 
@@ -94,7 +94,7 @@ export default function Launcher(monitor: Gdk.Monitor, visible: Accessor<boolean
     const position = new Graphene.Point({ x, y })
 
     if (!rect.contains_point(position)) {
-      setShowLauncher(false)
+      win.hide()
       return true
     }
   }
@@ -102,10 +102,10 @@ export default function Launcher(monitor: Gdk.Monitor, visible: Accessor<boolean
   return (
     <window
       $={(ref) => (win = ref)}
-      class="Launcher"
+      name="Launcher"
       namespace="launcher"
       gdkmonitor={monitor}
-      visible={visible}
+      application={app}
       exclusivity={Astal.Exclusivity.IGNORE}
       keymode={Astal.Keymode.EXCLUSIVE}
       onNotifyVisible={({ visible }) => {
