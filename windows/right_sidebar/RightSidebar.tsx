@@ -68,8 +68,8 @@ function SidebarPlayers() {
                 $={(self) => (
                   <With value={current}>
                     {(c) => {
-                      if (c) self.visibleChildName = ps[c].entry
-                      else self.visibleChildName = ps[0].entry
+                      if (c) self.visibleChildName = ps[c].busName
+                      else self.visibleChildName = ps[0].busName
                       return null
                     }}
                   </With>
@@ -106,7 +106,9 @@ function WifiModule() {
           return (
             <button
               class={wifiEnabled.as((enabled) => enabled ? "enabled" : "disabled")}
-              onClicked={() => setCurrentPanel("wifi")}
+              onClicked={() => currentPanel.get() !== "wifi"
+                ? setCurrentPanel("wifi")
+                : setCurrentPanel("notification")}
             >
               {sidebarButton(icon, name, status, false)}
             </button>
@@ -142,7 +144,9 @@ function BluetoothModule() {
   return <box class="Bluetooth">
     <button
       class={powered((p) => p ? "enabled" : "disabled")}
-      onClicked={() => setCurrentPanel("bluetooth")}
+      onClicked={() => currentPanel.get() !== "bluetooth"
+      ? setCurrentPanel("bluetooth")
+      : setCurrentPanel("notification")}
     >
       <With value={connected}>
         {() => {

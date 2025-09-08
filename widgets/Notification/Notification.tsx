@@ -103,7 +103,7 @@ export default function Notification({ notification: n }: NotificationProps) {
                 useMarkup
                 halign={Gtk.Align.START}
                 xalign={0}
-                justify={Gtk.Justification.FILL}
+                justify={Gtk.Justification.LEFT}
                 label={escapeMarkup(n.body)}
               />
             )}

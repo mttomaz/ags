@@ -43,5 +43,5 @@ export function getWeatherImage(desc: string): string {
 
 
 export function escapeMarkup(text: string): string {
-  return text.replace(/&/g, "&amp")
+  return text.replace(/&/g, "&amp;")
 }

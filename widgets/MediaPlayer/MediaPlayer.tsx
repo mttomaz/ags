@@ -114,7 +114,7 @@ export default function MediaPlayer(player: AstalMpris.Player) {
 
   return <box
     class="MediaPlayer"
-    name={player.entry}
+    name={player.busName}
     $type="named"
   >
     <Gtk.EventControllerMotion
