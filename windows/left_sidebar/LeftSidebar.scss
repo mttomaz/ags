@@ -13,19 +13,6 @@ window#LeftSidebar {
     box-shadow: 0px 0px 5px rgba(black, 0.7);
   }
 
-  .TimeAndDate {
-    padding: 10px 0px 30px 0px;
-    text-shadow: 2px 2px 3px rgba(black, 0.9);
-    .Time {
-      font-size: 60px;
-      font-weight: 800;
-    }
-    .Today {
-      font-size: 20px;
-      font-weight: 600;
-    }
-  }
-
   .calendar {
     font-family: $font2;
     font-weight: 500;
@@ -70,7 +57,7 @@ window#LeftSidebar {
   .Weather {
     font-family: $font2;
     background-color: $bg2;
-    margin-top: 16px;
+    margin-bottom: 16px;
     border-radius: 16px;
     box-shadow: 0px 0px 5px rgba(black, 0.2);
     .Image {

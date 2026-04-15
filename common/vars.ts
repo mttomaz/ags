@@ -15,7 +15,7 @@ export const currentTime = createPoll("", 1000, () =>
   GLib.DateTime.new_now_local().format("%H:%M")!)
 
 export const currentDay = createPoll("", 1000, () =>
-  GLib.DateTime.new_now_local().format("^%A, %d de ^%B")!)
+  GLib.DateTime.new_now_local().format("%d/%m")!)
 
 export const uptime = createPoll("", 5 * 60 * 1000, async () => {
   const output = await execAsync("uptime -p")

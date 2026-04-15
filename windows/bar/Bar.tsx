@@ -6,7 +6,6 @@ import app from "ags/gtk4/app"
 import { Accessor, createBinding, createState, For, With } from "gnim"
 import AstalBattery from "gi://AstalBattery?version=0.1"
 import AstalBluetooth from "gi://AstalBluetooth?version=0.1"
-import AstalHyprland from "gi://AstalHyprland?version=0.1"
 import AstalMpris from "gi://AstalMpris?version=0.1"
 import AstalNetwork from "gi://AstalNetwork?version=0.1"
 import AstalTray from "gi://AstalTray?version=0.1"
@@ -118,36 +117,6 @@ function MediaModule() {
   </With>
 }
 
-function Workspaces() {
-  const hypr = AstalHyprland.get_default()
-  const [wsList, setWsList] = createState(hypr.get_workspaces())
-
-  // INFO: https://github.com/Aylur/astal/issues/284
-  hypr.connect("workspace-added", (_, ws) => {
-    setWsList((w) => [...w, ws])
-  })
-  hypr.connect("workspace-removed", (_, wsId) => {
-    setWsList((w) => w.filter((w) => w.id != wsId))
-  })
-
-  const sorted = (arr: Array<AstalHyprland.Workspace>) => {
-    return arr.filter(ws => !(ws.id >= -99 && ws.id <= -2)).sort((a, b) => a.id - b.id)
-  }
-
-  return <box class="Workspaces">
-    <For each={wsList(sorted)}>
-      {(ws: AstalHyprland.Workspace) => (
-        <button
-          class={createBinding(hypr, "focusedWorkspace").as(fw => ws === fw ? "focused" : "")}
-          onClicked={() => ws.focus()}
-        >
-          {ws.id}
-        </button>
-      )}
-    </For>
-  </box>
-}
-
 function Weather() {
   const [visible, setVisible] = createState(true)
   return (
@@ -208,7 +177,6 @@ export default function Bar(monitor: Gdk.Monitor) {
               <Weather />
             </box>
           </button>
-          <Workspaces />
         </box>
         <box $type="center">
           <MediaModule />

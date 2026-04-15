@@ -3,32 +3,10 @@ import Gdk from "gi://Gdk?version=4.0"
 import Astal from "gi://Astal?version=4.0"
 import app from "ags/gtk4/app"
 import { Accessor, With } from "gnim"
-import Time from "@widgets/Time/Time"
 import { getWeatherEmoji, getWeatherImage, pathToURI } from "@common/functions"
-import { currentDay, weatherReport } from "@common/vars"
+import { weatherReport } from "@common/vars"
 
 export let leftWin: Gtk.Window
-
-function TimeAndDate() {
-  return (
-    <box
-      class="TimeAndDate"
-      orientation={Gtk.Orientation.VERTICAL}
-    >
-      <Time />
-      <With value={currentDay}>
-        {(day) => (
-          <label
-            class="Today"
-            label={day.replace(/\^(\w)(\w*)/g, (_, first, rest) =>
-              first.toUpperCase() + rest.toLowerCase())
-            } />
-        )}
-      </With>
-    </box>
-  )
-}
-
 
 function getUpcomingHours(hourly: any[]) {
   const now = new Date()
@@ -143,11 +121,10 @@ export default function LeftSidebar(monitor: Gdk.Monitor) {
       orientation={Gtk.Orientation.VERTICAL}
       class="sidebar"
     >
-      <TimeAndDate />
+      <WeatherSidebar />
       <box class="calendar">
         <Gtk.Calendar />
       </box>
-      <WeatherSidebar />
     </box>
   </window>
 }

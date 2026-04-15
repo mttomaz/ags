@@ -10,23 +10,6 @@ window#Bar {
   font-weight: 700;
   min-height: 28px;
 
-  .Workspaces {
-    margin-left: 2px;
-    transition-duration: 150ms;
-    button {
-      all: unset;
-      color: #727169;
-      background-color: transparent;
-      padding: 0 4px;
-      &:hover {
-        color: $fg2;
-      }
-    }
-    .focused label {
-      color: $fg1;
-    }
-  }
-
   .Tray {
     padding: 0 4px;
     button {

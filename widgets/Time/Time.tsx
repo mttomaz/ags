@@ -1,6 +1,6 @@
 import Gtk from "gi://Gtk?version=4.0"
 import { With } from "gnim"
-import { currentTime } from "@common/vars"
+import { currentDay, currentTime } from "@common/vars"
 
 function DigitStack(index: number) {
   return (
@@ -34,6 +34,7 @@ export default function Time() {
       <label label=":" css="font-family: 'JetBrainsMono Nerd Font'" />
       {DigitStack(3)}
       {DigitStack(4)}
+      <label css="margin-left: 6px" label={currentDay}/>
     </box>
   )
 }
